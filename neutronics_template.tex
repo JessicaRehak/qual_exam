@@ -1,0 +1,87 @@
+
+\definecolor{CoolBlack}{rgb}{0.0, 0.18, 0.39}
+\definecolor{byellow}{rgb}{0.55037, 0.38821, 0.06142}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{tikz}
+\usepackage{Tabbing}
+\usepackage{mathrsfs}
+\usepackage[mathcal]{euscript}
+\usepackage{epsfig}
+\usepackage{changepage}
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+\usepackage{caption}
+\usepackage{color}
+\usepackage[version=3]{mhchem}
+\usepackage{hyperref}
+\usepackage{multirow}
+%\usepackage[firstpage]{draftwatermark}
+\usepackage{animate}
+\usepackage{appendixnumberbeamer}
+
+
+
+\usetikzlibrary{decorations.fractals}
+
+\setbeamerfont{title like}{shape=\scshape}
+\setbeamerfont{frametitle}{shape=\scshape}
+
+\setbeamercolor*{lower separation line head}{bg=CoolBlack}
+\setbeamercolor*{normal text}{fg=black,bg=white}
+\setbeamercolor*{alerted text}{fg=dgreen} 
+\setbeamercolor*{example text}{fg=black}
+\setbeamercolor*{structure}{fg=black}
+
+% Margins
+\mode<presentation>
+{
+  \definecolor{berkeleyblue}{HTML}{003262}
+  \definecolor{berkeleygold}{HTML}{FDB515}
+  \usetheme{Boadilla}      % or try Darmstadt, Madrid, Warsaw, Boadilla...
+  %\usecolortheme{dove} % or try albatross, beaver, crane, ...
+  \setbeamercolor{structure}{fg=berkeleyblue,bg=berkeleygold}
+  \setbeamercolor{palette primary}{fg=berkeleyblue,bg=berkeleygold}
+  \setbeamercolor{palette secondary}{fg=berkeleyblue,bg=berkeleygold}
+  \setbeamercolor{palette tertiary}{bg=berkeleyblue,fg=white}
+  \usefonttheme{structurebold}  % or try serif, structurebold, ...
+  \useinnertheme{circles}
+  \setbeamertemplate{caption}[numbered]
+  \usebackgroundtemplate{}
+}
+
+%% Beamer Layout %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\useoutertheme[subsection=false,shadow]{miniframes}
+%\useinnertheme{default}
+%\usefonttheme{serif}
+%\usepackage{palatino}
+%\usepackage{tabu}
+% addition of color
+\definecolor{dgreen}{rgb}{0.,0.6,0.}
+\definecolor{RawSienna}{cmyk}{0,0.72,1,0.45}
+%\usepackage[sorting=none]{biblatex}
+\mode<presentation>
+
+% Links
+\definecolor{links}{HTML}{003262}
+\hypersetup{colorlinks,linkcolor=,urlcolor=links}
+
+% columns
+\renewcommand{\(}{\begin{columns}}
+\renewcommand{\)}{\end{columns}}
+\newcommand{\<}[1]{\begin{column}{#1}}
+\renewcommand{\>}{\end{column}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% START EDITING HERE

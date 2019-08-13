@@ -1,0 +1,97 @@
+% NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
+
+\documentclass[xcolor=x11names, compress]{beamer}
+\usefonttheme[onlymath]{serif}
+\setbeamerfont{caption}{size=\scriptsize}
+\include{neutronics_template}
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+\usepackage{appendixnumberbeamer}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[super]{nth}
+\newcommand\Warning{%
+ \makebox[1.4em][c]{%
+ \makebox[0pt][c]{\raisebox{.1em}{\small!}}%
+ \makebox[0pt][c]{\color{red}\Large$\bigtriangleup$}}}%
+%THIS IS THE BEAR WATERMARK IN THE COVER SLIDE; YOU MAY EXCLUDE IT
+%\SetWatermarkText{\includegraphics{0calbear.jpg}}
+%\SetWatermarkAngle{0}
+%\SetWatermarkScale{0.61}
+%%%%%%%%%%%%%%%%%%%%%%
+
+%THIS IS THE INFO AT THE BOTTOM OF YOUR FRAMES
+\title{Qualification Exam}
+\author{J.S. Rehak}
+\date{September \nth{4}, 2019}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[plain]
+%THIS IS THE TITLE OF THE TALK
+\title{Title of Qualification Exam Talk}
+
+%FEEL FREE TO EDIT THE COVER LAYOUT AS NEEDED
+\author{
+\begin{tabular}{c}
+%YOUR NAME
+J. S. Rehak\\
+\vspace{10pt}\\
+\includegraphics[height=2.5cm]{0bk.eps}
+\end{tabular}}
+\date{\vspace{-20pt}\\
+  \begin{tabular}{c}
+    \large{Qualification Exam} \\
+ September \nth{4}, 2019
+  \end{tabular}
+}
+
+\titlepage
+\end{frame}
+
+%----------------------------------------------------------%
+% WHEN YOU START A NEW SECTION, IT WILL SHOW UP AS A CLICKABLE
+% SHORTCUT AT THE TOP OF YOUR FRAMES
+
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{\scshape Background}
+
+\frame[c]{\frametitle{Boltzman Transport Equation}
+  
+
+}
+
+\begin{frame}
+  \frametitle{Acknowledgments}
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.4]{images/nrc}
+  \end{figure}\centering
+  \small This work was prepared by Joshua Rehak under award number
+  NRC-HQ-84-14-G-0042 from the Nuclear Regulatory Commission. The
+  statements, findings, conclusions, and recommendations are those of
+  the authors and do not necessarily reflect the view of the US
+  Nuclear Regulatory Commission.
+\end{frame}
+
+\appendix
+
+\frame{\frametitle{References}
+\tiny{\bibliographystyle{plain}}
+\bibliography{bib/bib}
+}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
