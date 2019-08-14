@@ -1,0 +1,28 @@
+\ProvidesPackage{sty/commands}
+
+%==== NEW TEX COMMANDS  =============================================
+%== Environments
+
+%== Commands
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert} % Norm
+\newcommand{\ele}[2]{$^{#2}$#1} % Element name formatting
+\newcommand{\ordo}[1]{\mathcal{O}(#1)} % Order
+
+% Redefine det and vector
+\renewcommand{\det}[1]{\text{det}(#1)}
+\renewcommand{\vec}[1]{\mathbf{#1}} % Make vectors bold
+
+% Matrix or vector dimension
+\newcommand{\ins}[3]{\in \mathbb{#1}^{#2 \times #2}}
+
+% Various Variables
+\newcommand{\rvec}{\vec{r}}
+\newcommand{\oh}{\hat{\Omega}}
+\newcommand{\ohv}{\vec{\oh}}
+\newcommand{\bo}{\mathbf\Omega}
+\newcommand{\vecr}{\textbf{r}}
+\newcommand{\sigt}{\Sigma_t}
+\newcommand{\sigs}{\Sigma_s}
+
+% Partial Derivatives
+\newcommand{\pd}[3][]{\frac{\partial^{#1}#2}{\partial{#3}^{#1}}}

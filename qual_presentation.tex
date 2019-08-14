@@ -11,6 +11,7 @@
 \usepackage{tikz}
 \usepackage{xcolor}
 \usepackage[super]{nth}
+\usepackage{sty/commands}
 \newcommand\Warning{%
  \makebox[1.4em][c]{%
  \makebox[0pt][c]{\raisebox{.1em}{\small!}}%
@@ -62,10 +63,81 @@ J. S. Rehak\\
   \tableofcontents
 \end{frame}
 
+\section{Motivation}
+
 \section{\scshape Background}
 
-\frame[c]{\frametitle{Boltzman Transport Equation}
+\frame[c]{\frametitle{Steady-state Boltzman Transport Equation}
+
+  Our problem of interest is the time-independent transport equation
+  for a critical system on a domain of interest
+  $\rvec \in \mathbb{D}$,$E \in \mathbb{E}$~\cite{lewis1993}
   
+\begin{align*} 
+  &\left[\oh\cdot  \nabla + \Sigma_t(\rvec,E)\right]\psi(\rvec,E,\oh)\\
+  & \quad = \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
+    \psi(\rvec,E',\oh') \\ & \quad + Q(\rvec, E, \oh)
+  % & \quad +  \chi(E)\int_0^{\infty}dE'\nu\Sigma_f(\rvec,
+  %   E')\int_{4\pi}d\oh'\psi(\rvec, E', \oh')\;,
+\end{align*}
+with a given boundary condition,
+\begin{align*}
+  c_0\psi(\rvec, \oh, E) + c_1\frac{\partial\psi(\rvec, \oh,
+  E)}{\partial \rvec}= f(\rvec, \oh, E), \quad 
+  \hat{n} \cdot \oh < 0,
+  \rvec \in \partial\mathbb{D}
+\end{align*}
+  
+}
+
+\frame[c]{\frametitle{Energy discretization}
+  Introduce a discretization of the energy domain $\mathbb{E}$ into $G$
+  non-overlapping elements, such that
+  \begin{align*}
+    E_h = \left\{E_1, E_2, \ldots, E_G\right\}, \quad \mathbb{E} = \bigcup_{g=1}^GE_g
+  \end{align*}
+
+  Assume that the energy-dependent angular flux can be separated into
+  a group angular flux and a energy function within each of
+  these groups
+  \begin{align*}
+    \psi(\rvec, E, \oh) \approx \psi_g(\rvec, \oh)f_g(E), \quad E \in E_g 
+  \end{align*}
+  Finally, assume that
+  \begin{align*}
+    \int_{E_{g'} \in E_h}f_g(E) dE = \delta_{g, g'}
+  \end{align*}
+}
+
+\frame[c]{\frametitle{Single-group steady-state transport equation}
+  \begin{align*}
+  &\left[\oh\cdot  \nabla + \Sigma_t(\rvec,E)\right]\psi_g(\rvec,\oh)\\
+  & \quad = \sum_{g' = 1}^G\int_{4\pi}d\oh'\Sigma_s(\rvec, E_{g'}\rightarrow E_g,\oh'\rightarrow\oh)
+    \psi_{g'}(\rvec,\oh') +  Q_g(\rvec, \oh)
+  \end{align*}
+  
+}
+
+\frame[c]{\frametitle{Transport equation second-order forms}
+  Consider the mono-energetic form of the transport equation, using the scattering operator $S\psi(\rvec, \oh) = \int_{4\pi}d\oh'\Sigma_s(\rvec,
+  \oh'\rightarrow\oh)\psi(\rvec,\oh')$:
+  \begin{equation}
+    \label{eq:monoenergetic}
+    \left[\oh\cdot \nabla + \Sigma_t(\rvec)\right]\psi(\rvec, \oh) = 
+    S\psi(\rvec, \oh) + Q
+  \end{equation}
+Substitute $-\oh$ for $\oh$, add to
+Eq.~\eqref{eq:monoenergetic}, and divide by two to get a function of even-
+and odd-parity angular fluxes.
+
+\begin{align*}
+  \oh\cdot\nabla\psi^- + \Sigma_t\psi^+ = S^+\psi^+ + Q^+
+\end{align*}
+where,
+\begin{align*}
+  \psi^+ = \frac{1}{2}\left(\psi(\oh) + \psi(-\oh)\right) \\
+  \psi^- = \frac{1}{2}\left(\psi(\oh) - \psi(-\oh)\right) \\
+\end{align*}
 
 }
 
