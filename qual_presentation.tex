@@ -1,10 +1,15 @@
 % NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
 
 \documentclass[xcolor=x11names, compress]{beamer}
+\usepackage{pgfpages}
 \usefonttheme[onlymath]{serif}
 \setbeamerfont{caption}{size=\scriptsize}
+\setbeameroption{show notes on second screen=right}
 \include{neutronics_template}
 \setbeamertemplate{bibliography item}{\insertbiblabel}
+% \setbeamertemplate{note page}{\pagecolor{yellow!5}\insertnote}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{appendixnumberbeamer}
 \usepackage{booktabs}
 \usepackage{amsmath}
@@ -107,6 +112,144 @@ with a given boundary condition,
   \begin{align*}
     \int_{E_{g'} \in E_h}f_g(E) dE = \delta_{g, g'}
   \end{align*}
+}
+
+\frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
+  \pause
+ Start with the single-group first-order transport equation~\cite{Morel1999}:
+  \begin{equation}
+    \label{eq:single_group_for_saaf}
+    \oh \cdot \nabla \psi + \Sigma_t \psi = S \psi + q\;.
+  \end{equation}
+  \pause
+Solve for $\psi$,
+  \begin{equation*}
+    \psi = \frac{1}{\Sigma_t}\left[S\psi + q - \oh \cdot \nabla \psi\right]\;,
+  \end{equation*}
+  and plug back into the gradient term in
+  Eq.\ref{eq:single_group_for_saaf}.
+    \pause
+  \begin{block}{}
+    \begin{equation*}
+    - \oh \cdot \nabla \frac{1}{\Sigma_t}\oh \cdot \nabla \psi +
+      \Sigma_t \psi = S\psi + q - \oh \cdot \nabla \frac{S\psi +
+        q}{4\pi}
+    \end{equation*}
+  \end{block}
+  With boundary conditions, for all $\vec{r} \in \partial D$:
+  \begin{equation*}
+      \psi = f, \quad \oh
+      \cdot \hat{n} < 0 
+    \end{equation*}
+\begin{equation*}
+      \oh \cdot \nabla \psi + \Sigma_t\psi= S\psi + q, \quad \oh
+      \cdot \hat{n} > 0 
+    \end{equation*}
+\note{The Self-adjoint angular flux equation (SAAF) is a second-order from
+  of the transport equation introduced by Morel and McGhee in 1999. To
+  derive, consider scattering term part of tte source. Properties of SAAF
+  \begin{itemize}
+  \item +Can solve using standard CFEM methods, which give SPD matrices
+    (can use CG instead of GMRES)  
+  \item +Full angular flux is obtained by solve (unlike Even/Odd
+    parity)
+  \item +BCs only coupled in one direction when reflective
+  \item -General sparse matrix, not block lower-triangular (no
+    sweeping)
+  \item -Pure scattering causes issues like odd-parity
+  \end{itemize}
+
+}
+}
+
+\section{Acceleration Methods}
+
+\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
+\pause
+  Start, again, with the single-group first-order transport
+  equation~\cite{Hammer2017}, integrated over angle:
+  \begin{equation*}
+    \nabla \cdot J_g + \left(\Sigma_{t,g} - \Sigma_s^{g\to g}\right)
+    \phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g,\quad J_g \equiv \int
+    d\oh \oh \psi_g\;.
+  \end{equation*}
+  \pause
+  As a closure to this problem, it is common to define current using \textit{Fick's law},
+  \begin{equation*}
+    J_g = -D\nabla \phi_g\;.
+  \end{equation*}
+  \pause
+  Construct an additive correction to the current using information
+  from an angular solve:
+  \begin{align*}
+    J_g &= -D\nabla \phi_g + J_g^{\text{ang}} - J_g^{\text{ang}}\\
+        &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
+          D\nabla\phi_g
+  \end{align*}
+  
+  \note{
+    \begin{itemize}
+    \item Uses a lower order diffusion solve to accelerate a higher
+    order solve. 
+  \item Start with the same single-group first-order
+    transport equation, multiply by and integrate over angle, giving the
+    ``neutron continuity equation.''
+  \item We need closure for this problem, so often we use Fick's law,
+    we will introduce a correction onto Fick's Law based on a higher
+    order solve.
+  \item We will introduce an additive correction based on our two
+    definitions of the current.
+    \end{itemize}
+}
+}
+
+\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
+  Fold the additive correction into a \textit{drift-diffusion vector}:
+  \begin{align*}
+    J_g &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
+          D\nabla\phi_g \\
+        &= -D\nabla\phi_g + \left[\frac{\int_{4\pi}d\oh\oh\psi_g +
+          D\nabla\phi_g}{\phi_g}\right]\phi_g \\
+        &= -D \nabla \phi_g + \hat{D}_g\phi_g\;.
+  \end{align*}
+  \pause
+  Plugging this into our integrated transport equation gives the
+low-order non-linear diffusion acceleration equation (LONDA),
+  \begin{block}{}
+    \begin{equation*}
+      \nabla\cdot\left[-D\nabla + \hat{D}_g\right]\phi_g +
+      \left(\Sigma_{t,g} - \Sigma_s^{g \to g}\right)\phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g
+    \end{equation*}
+  \end{block}
+
+  
+  \note{
+    \begin{itemize}
+    \item We combine these corrections into a drift diffusion vector.
+    \item This gives us the LONDA equation, which is just the same
+      integrated transport equation with a corrected current term.
+    \item Presumably, the ``higher order'' angular solve will have
+      better current information, so we can use it to calculate the drift diffusion vector.
+    \end{itemize}
+  }
+}
+
+\frame[c]{\frametitle{NDA algorithm}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/nda_flowchart}
+    \caption{NDA Algorithm.\label{fig:nda_algorithm}}
+  \end{figure}
+
+  \note{
+    \begin{itemize}
+    \item NDA algorithm showing inner low order loop, and outer high
+      order loop.
+    \item In general, outer loop updates both scattering and fission
+      source, checking for $k$ convergence. Inner loop updates
+      fission source, also checking $k$ convergence.
+    \end{itemize}
+  }
 }
 
 \frame[c]{\frametitle{Single-group steady-state transport equation}
