@@ -1,6 +1,6 @@
 % NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
-
-\documentclass[xcolor=x11names, compress]{beamer}
+\documentclass[xcolor=x11names, compress, handout]{beamer}
+%\documentclass[xcolor=x11names, compress]{beamer}
 \usepackage{pgfpages}
 \usefonttheme[onlymath]{serif}
 \setbeamerfont{caption}{size=\scriptsize}
@@ -17,6 +17,7 @@
 \usepackage{xcolor}
 \usepackage[super]{nth}
 \usepackage{sty/commands}
+\usepackage{appendixnumberbeamer}
 \newcommand\Warning{%
  \makebox[1.4em][c]{%
  \makebox[0pt][c]{\raisebox{.1em}{\small!}}%
@@ -26,6 +27,17 @@
 %\SetWatermarkAngle{0}
 %\SetWatermarkScale{0.61}
 %%%%%%%%%%%%%%%%%%%%%%
+
+\AtBeginSection[]{
+  \begin{frame}[noframenumbering, plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
 
 %THIS IS THE INFO AT THE BOTTOM OF YOUR FRAMES
 \title{Qualification Exam}
@@ -76,109 +88,73 @@ J. S. Rehak\\
 
   Our problem of interest is the time-independent transport equation
   for a critical system on a domain of interest
-  $\rvec \in \mathbb{D}$,$E \in \mathbb{E}$~\cite{lewis1993}
+  $\rvec \in V$~\cite{lewis1993},
   
-\begin{align*} 
-  &\left[\oh\cdot  \nabla + \Sigma_t(\rvec,E)\right]\psi(\rvec,E,\oh)\\
-  & \quad = \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
-    \psi(\rvec,E',\oh') \\ & \quad + Q(\rvec, E, \oh)
-  % & \quad +  \chi(E)\int_0^{\infty}dE'\nu\Sigma_f(\rvec,
-  %   E')\int_{4\pi}d\oh'\psi(\rvec, E', \oh')\;,
+\begin{align*}
+  &\left[ \oh\cdot  \nabla + \Sigma_t(\rvec,E) \right] \psi(\rvec,E,\oh)\\
+  & \quad \quad \quad= \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
+    \psi(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\rvec, E, \oh)\;,
 \end{align*}
 with a given boundary condition,
 \begin{align*}
-  c_0\psi(\rvec, \oh, E) + c_1\frac{\partial\psi(\rvec, \oh,
-  E)}{\partial \rvec}= f(\rvec, \oh, E), \quad 
-  \hat{n} \cdot \oh < 0,
-  \rvec \in \partial\mathbb{D}
+  \psi(\rvec,E,\oh) = \Gamma(\rvec, E, \oh), \quad \rvec \in \partial V,
+  \quad \oh \cdot \hat{n} < 0
 \end{align*}
-  
 }
 
-\frame[c]{\frametitle{Energy discretization}
-  Introduce a discretization of the energy domain $\mathbb{E}$ into $G$
-  non-overlapping elements, such that
-  \begin{align*}
-    E_h = \left\{E_1, E_2, \ldots, E_G\right\}, \quad \mathbb{E} = \bigcup_{g=1}^GE_g
-  \end{align*}
 
-  Assume that the energy-dependent angular flux can be separated into
-  a group angular flux and a energy function within each of
-  these groups
-  \begin{align*}
-    \psi(\rvec, E, \oh) \approx \psi_g(\rvec, \oh)f_g(E), \quad E \in E_g 
-  \end{align*}
-  Finally, assume that
-  \begin{align*}
-    \int_{E_{g'} \in E_h}f_g(E) dE = \delta_{g, g'}
-  \end{align*}
-}
 
-\frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
-  \pause
- Start with the single-group first-order transport equation~\cite{Morel1999}:
-  \begin{equation}
-    \label{eq:single_group_for_saaf}
-    \oh \cdot \nabla \psi + \Sigma_t \psi = S \psi + q\;.
-  \end{equation}
-  \pause
-Solve for $\psi$,
-  \begin{equation*}
-    \psi = \frac{1}{\Sigma_t}\left[S\psi + q - \oh \cdot \nabla \psi\right]\;,
-  \end{equation*}
-  and plug back into the gradient term in
-  Eq.\ref{eq:single_group_for_saaf}.
-    \pause
-  \begin{block}{}
-    \begin{equation*}
-    - \oh \cdot \nabla \frac{1}{\Sigma_t}\oh \cdot \nabla \psi +
-      \Sigma_t \psi = S\psi + q - \oh \cdot \nabla \frac{S\psi +
-        q}{4\pi}
-    \end{equation*}
-  \end{block}
-  With boundary conditions, for all $\vec{r} \in \partial D$:
-  \begin{equation*}
-      \psi = f, \quad \oh
-      \cdot \hat{n} < 0 
-    \end{equation*}
-\begin{equation*}
-      \oh \cdot \nabla \psi + \Sigma_t\psi= S\psi + q, \quad \oh
-      \cdot \hat{n} > 0 
-    \end{equation*}
-\note{The Self-adjoint angular flux equation (SAAF) is a second-order from
-  of the transport equation introduced by Morel and McGhee in 1999. To
-  derive, consider scattering term part of tte source. Properties of SAAF
+\frame[c]{\frametitle{The multigroup $S_N$ equations}
+  To get the standard multigroup $S_N$ equations, we apply the
+  following discretizations:
   \begin{itemize}
-  \item +Can solve using standard CFEM methods, which give SPD matrices
-    (can use CG instead of GMRES)  
-  \item +Full angular flux is obtained by solve (unlike Even/Odd
-    parity)
-  \item +BCs only coupled in one direction when reflective
-  \item -General sparse matrix, not block lower-triangular (no
-    sweeping)
-  \item -Pure scattering causes issues like odd-parity
+  \item<1-> Apply a Petrov-Galerkin scheme in energy (multigroup
+    method), splitting into $G$ coupled equations.
+  \item<2-> Apply a collocation scheme in angle, solving at angles $\oh_a$.
+  \item<3-> Expanding scattering cross-section in Legendre Polynomials
+    with a maximum degree $N$ (the $P_N$ method).
   \end{itemize}
+  \pause
+  \begin{align*}
+    &\left[\oh^a \cdot \nabla + \Sigma_{t}^{g}(\rvec)\right]\psi^g(\rvec,
+      \oh^a) \\
+    & \quad \quad = \sum_{g' = 0}^{G}\sum_{\ell = 0}^N\sum_{m =-\ell}^{\ell}\Sigma_{s,\ell}^{g' \to g}
+      Y_{\ell,m}(\oh^a)\phi_{\ell, m}^{g'}(\rvec) + Q^g(\rvec, \oh^a)
+  \end{align*}
+  In operator form:
+  \begin{align*}
+    \mat{L}^g\mat{\Psi}^g = \mat{M}\sum_{g' = 0}\mat{S}^{g' \to g}\mat{\Phi}^{g'}
+    + \mat{Q}^g, \quad \mat{\Phi}^{g} = \mat{D}\mat{\Psi}^g
+  \end{align*}
 
+  \note{
+    \begin{itemize}      
+    \item Multigroup method splits the equations into $G$ coupled equations
+    \item Collocation scheme in angle uses points for a quadrature
+      rule for integrating angular flux to get flux moments
+    \item Expand in legendre polynomials, use polynomial addition theorem,
+    \end{itemize}
+    }
 }
-}
+
 
 \section{Acceleration Methods}
 
 \frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
-\pause
-  Start, again, with the single-group first-order transport
-  equation~\cite{Hammer2017}, integrated over angle:
+%\pause
+  Start, with the single-group first-order transport
+  equation~\cite{Hammer2017}, and integrate over angle:
   \begin{equation*}
     \nabla \cdot J_g + \left(\Sigma_{t,g} - \Sigma_s^{g\to g}\right)
     \phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g,\quad J_g \equiv \int
-    d\oh \oh \psi_g\;.
+    d\oh \oh \psi_g(\oh)\;.
   \end{equation*}
-  \pause
+  %\pause
   As a closure to this problem, it is common to define current using \textit{Fick's law},
   \begin{equation*}
     J_g = -D\nabla \phi_g\;.
   \end{equation*}
-  \pause
+  %\pause
   Construct an additive correction to the current using information
   from an angular solve:
   \begin{align*}
@@ -212,7 +188,7 @@ Solve for $\psi$,
           D\nabla\phi_g}{\phi_g}\right]\phi_g \\
         &= -D \nabla \phi_g + \hat{D}_g\phi_g\;.
   \end{align*}
-  \pause
+  %\pause
   Plugging this into our integrated transport equation gives the
 low-order non-linear diffusion acceleration equation (LONDA),
   \begin{block}{}
@@ -252,6 +228,10 @@ low-order non-linear diffusion acceleration equation (LONDA),
   }
 }
 
+
+
+\section{BART}
+
 \frame[c]{\frametitle{Single-group steady-state transport equation}
   \begin{align*}
   &\left[\oh\cdot  \nabla + \Sigma_t(\rvec,E)\right]\psi_g(\rvec,\oh)\\
@@ -284,24 +264,92 @@ where,
 
 }
 
-\begin{frame}
-  \frametitle{Acknowledgments}
-  \begin{figure}[h!]
-    \centering
-    \includegraphics[scale=0.4]{images/nrc}
-  \end{figure}\centering
-  \small This work was prepared by Joshua Rehak under award number
-  NRC-HQ-84-14-G-0042 from the Nuclear Regulatory Commission. The
-  statements, findings, conclusions, and recommendations are those of
-  the authors and do not necessarily reflect the view of the US
-  Nuclear Regulatory Commission.
-\end{frame}
+\frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
+  
+ Start with the single-group first-order transport equation~\cite{Morel1999}:
+  \begin{equation}
+    \label{eq:single_group_for_saaf}
+    \oh \cdot \nabla \psi + \Sigma_t \psi = S \psi + q\;.
+  \end{equation}
+  %\pause
+Solve for $\psi$,
+  \begin{equation*}
+    \psi = \frac{1}{\Sigma_t}\left[S\psi + q - \oh \cdot \nabla \psi\right]\;,
+  \end{equation*}
+  and plug back into the gradient term in
+  Eq.\ref{eq:single_group_for_saaf}.
+    %\pause
+  \begin{block}{}
+    \begin{equation*}
+    - \oh \cdot \nabla \frac{1}{\Sigma_t}\oh \cdot \nabla \psi +
+      \Sigma_t \psi = S\psi + q - \oh \cdot \nabla \frac{S\psi +
+        q}{4\pi}
+    \end{equation*}
+  \end{block}
+  With boundary conditions, for all $\vec{r} \in \partial D$:
+  \begin{equation*}
+      \psi = f, \quad \oh
+      \cdot \hat{n} < 0 
+    \end{equation*}
+\begin{equation*}
+      \oh \cdot \nabla \psi + \Sigma_t\psi= S\psi + q, \quad \oh
+      \cdot \hat{n} > 0 
+    \end{equation*}
+\note{The Self-adjoint angular flux equation (SAAF) is a second-order from
+  of the transport equation introduced by Morel and McGhee in 1999. To
+  derive, consider scattering term part of tte source. Properties of SAAF
+  \begin{itemize}
+  \item +Can solve using standard CFEM methods, which give SPD matrices
+    (can use CG instead of GMRES)  
+  \item +Full angular flux is obtained by solve (unlike Even/Odd
+    parity)
+  \item +BCs only coupled in one direction when reflective
+  \item -General sparse matrix, not block lower-triangular (no
+    sweeping)
+  \item -Pure scattering causes issues like odd-parity
+  \end{itemize}
 
-\appendix
+}
+}
 
 \frame{\frametitle{References}
 \tiny{\bibliographystyle{plain}}
 \bibliography{bib/bib}
+}
+
+\appendix
+
+\section{Backup Slides}
+
+\frame[c]{\frametitle{Energy discretization}
+  Introduce a discretization of the energy domain $\mathbb{E}$ into $G$
+  non-overlapping elements, such that
+  \begin{align*}
+    E_h = \left\{E_1, E_2, \ldots, E_G\right\}, \quad \mathbb{E} = \bigcup_{g=1}^GE_g
+  \end{align*}
+  
+  Assume that the energy-dependent angular flux can be separated into
+  a group angular flux and a energy function within each of
+  these groups
+  \begin{align*}
+    \psi(\rvec, E, \oh) \approx \psi_g(\rvec, \oh)f_g(E), \quad E \in E_g 
+  \end{align*}
+
+  This gives us $G$ coupled equations for each energy group,
+  converting the integral scattering term into a summation,
+  \begin{equation*}
+    \left[\oh\cdot  \nabla +
+      \Sigma_{t,g}(\rvec)\right]\psi_g(\rvec,\oh) = \sum_{g' = 0}^G\Sigma_{s,g'\to g}(\rvec, \oh' \to
+  \oh)\psi_{g'}(\rvec,\oh') + Q_g(\rvec, \oh)\;.
+  \end{equation*}
+
+  \note{
+    \begin{itemize}
+    \item Say that the function $f_g$ is zero inside element, and 0
+      outside, Petrov-Galerkin scheme.
+    \end{itemize}
+    
+    }
 }
 
 \end{document}
