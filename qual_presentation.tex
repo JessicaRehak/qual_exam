@@ -105,8 +105,7 @@ with a given boundary condition,
 
 
 \frame[c]{\frametitle{The multigroup $S_N$ equations}
-  To get the standard multigroup $S_N$ equations, we apply the
-  following discretizations:
+  Apply the following discretizations:
   \begin{itemize}
   \item<1-> Apply a Petrov-Galerkin scheme in energy (multigroup
     method), splitting into $G$ coupled equations.
@@ -114,28 +113,164 @@ with a given boundary condition,
   \item<3-> Expanding scattering cross-section in Legendre Polynomials
     with a maximum degree $N$ (the $P_N$ method).
   \end{itemize}
-  \pause
-  \begin{align*}
-    &\left[\oh^a \cdot \nabla + \Sigma_{t}^{g}(\rvec)\right]\psi^g(\rvec,
-      \oh^a) \\
-    & \quad \quad = \sum_{g' = 0}^{G}\sum_{\ell = 0}^N\sum_{m =-\ell}^{\ell}\Sigma_{s,\ell}^{g' \to g}
-      Y_{\ell,m}(\oh^a)\phi_{\ell, m}^{g'}(\rvec) + Q^g(\rvec, \oh^a)
-  \end{align*}
-  In operator form:
-  \begin{align*}
-    \mat{L}^g\mat{\Psi}^g = \mat{M}\sum_{g' = 0}\mat{S}^{g' \to g}\mat{\Phi}^{g'}
-    + \mat{Q}^g, \quad \mat{\Phi}^{g} = \mat{D}\mat{\Psi}^g
-  \end{align*}
 
+  \only<3>{
+      \begin{equation*}
+    \Sigma_{s,g'g,\ell} =
+    \int_{-1}^{1}\Sigma_{s,g'g}(\rvec,\mu)P_{\ell}(\mu)d\mu, \quad \mu
+    = \oh' \cdot \oh
+  \end{equation*}
+  \begin{equation*}
+    \phi_{g, \ell, m} = \int_{4\pi}\phi_g(\rvec, \oh')Y_{\ell, m}(\oh')d\oh'
+  \end{equation*}
+}
+\onslide<4->{
+  \pause
+  \begin{block}{Multigroup $S_N$ equations}\vspace{-0.25cm}
+    \begin{align*}
+      &\left[\oh_a \cdot \nabla + \Sigma_{t,g}(\rvec)\right]\psi_g(\rvec,
+        \oh_a) \\
+      & \quad \quad = \sum_{g' = 0}^{G}\sum_{\ell = 0}^N\sum_{m =-\ell}^{\ell}\Sigma_{s,g'g,\ell}
+        Y_{\ell,m}(\oh_a)\phi_{g',\ell, m}(\rvec) + Q_g(\rvec, \oh_a)
+    \end{align*}
+  \end{block}
+  }
   \note{
     \begin{itemize}      
     \item Multigroup method splits the equations into $G$ coupled equations
     \item Collocation scheme in angle uses points for a quadrature
       rule for integrating angular flux to get flux moments
-    \item Expand in legendre polynomials, use polynomial addition theorem,
+    \item Expand in Legendre polynomials, use polynomial addition theorem,
     \end{itemize}
     }
+  }
+
+\frame[c]{\frametitle{Iterative Solving Methods}
+  Expressed in operator form, this is
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g = \mat{M}\sum^{G}_{g' = 0}\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \mat{Q}_g, \quad \mat{\Phi}_{g} = \mat{D}\mat{\Psi}_g\;.
+  \end{align*}
+  \pause
+  Splitting the scattering source into down-scattering and up-scattering terms,
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \mat{Q}_g\;,
+  \end{align*}
+  \pause
+  And holding the source $\mat{Q}$ fixed leads to a Gauss-Seidel (scattering) source iteration,
+    \begin{align*}
+    \mat{L}_g\mat{\Psi}^{k+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{k+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^k_{g'}
+    + \mat{Q}_g\;.
+    \end{align*}
+    \note{
+      \begin{itemize}
+      \item M is the moment-to-discrete, D is the reverse
+      \item Important to note that the $G$-th energy group is the lowest.
+      \end{itemize}
+      }     
+    }
+
+\frame[c]{\frametitle{Iterative Solving Methods}
+  For a multiplying-medium problem, the fixed source $\mat{Q}$ is
+  replaced with the fission source,
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g = \mat{M}\sum^{G}_{g' = 0}\left[\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \frac{1}{k}\mat{F}
+    _{g'}\mat{\Phi}_{g'}\right]\;.
+  \end{align*}
+  Holding the scattering source fixed leads to power iteration
+  (fission source iteration),
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}^{k+1}_g = \mat{M}\sum^{G}_{g' = 0}\left[\mat{S}_{g'  g}\mat{\Phi}^{0}_{g'}
+    + \frac{1}{k}\mat{F}_{g'}\mat{\Phi}^{k}_{g'}\right]\;.
+  \end{align*}
 }
+
+\frame[c]{\frametitle{Fourier analysis}
+  To see how the error in our iterative schemes evolves, we can use
+  Fourier analysis~\cite{Adams2002}. To do so, we use a one-group, one
+  dimension, infinite homogeneous medium with isotropic scattering.
+  \begin{equation*}
+    \mu\frac{\partial}{\partial x}\psi(x, \mu) + \Sigma_t\psi(x, \mu)
+    = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi(x, \mu')d\mu' +
+    \frac{Q}{2}\;.
+  \end{equation*}
+  We define the source iteration scheme as discussed above,
+  \begin{equation*}
+    \mu\frac{\partial}{\partial x}\psi^{k+1}(x, \mu) + \Sigma_t\psi^{k+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi^k(x, \mu')d\mu' + \frac{Q}{2}\;.
+  \end{equation*}
+   and subtract the two to get an equation for the error in iteration
+   $k$, giving us a similar equation for the error in iteration $k+1$ as it
+   relates to the error in iteration $k$,
+   \begin{equation*}
+         \mu\frac{\partial}{\partial x}e^{k+1}(x, \mu) + \Sigma_te^{k+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}e^k(x, \mu')d\mu'\;.
+   \end{equation*}
+  \note{
+    \begin{itemize}
+    \item How can we be sure that source iteration will converge? What
+      controls the convergence rate? To determine this we can use a Fourier analysis.
+    \item We need to start with a lot of assumptions to get a very
+      simplified version of our transport equation.
+    \item We define what we mean by error, and get an equation that
+      relates the error in each step to the previous
+      step. Unsurprisingly it looks like our original equation,
+      because the evolution of the solution and the evolution of the
+      error are related.
+    \end{itemize}
+
+    }
+  }
+
+\frame[c]{\frametitle{Fourier Analysis}
+  To perform an inverse Fourier transform, we need to choose a
+  measure of spatial variation, an error ``wavelength.''
+  \pause
+  \begin{equation*}
+    \lambda = \frac{\ell}{n}, \quad \forall n \in \mathbb{R}
+    \implies \lwn = \frac{1}{\lambda} = \frac{n}{\ell} = n \cdot \Sigma_t
+  \end{equation*}
+  \pause
+    Perform an inverse Fourier transform,
+    \begin{equation*}
+      e^k(x, \mu) = \int_{-\infty}^{\infty}\hat{e}^k(n, \mu)e^{i\Sigma_t n x}dn\;.
+    \end{equation*}
+  \pause
+  After plugging into our equation for error and some rearranging,
+  \begin{equation*}
+    \int_{-1}^{1}\hat{e}^{k+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{e}^{k}(n, \mu')d\mu'\;,
+  \end{equation*}
+  Where
+  \begin{equation*}
+    \Lambda(n) = \frac{\Sigma_s}{\Sigma_t}\cdot \frac{\tan^{-1}{(n)}}{n}\;.
+  \end{equation*}
+       
+    
+
+    \note{
+      \begin{itemize}
+      \item We can examine the modes of the spatial error by using an
+        inverse fourier transform. This will give us an idea of how
+        the spatial frequencies of the error. We need to decide on an
+        error wavelength, which gives us a linear error
+        frequency. Higher $n$ means higher error frequency, with $n =
+        0$ being infinite wavelength, completely non-coupled error.
+      \item If we plug this back into our previous equation and do a
+        large amount of manipulation, we get a fairly simple
+        relationship between the integrated error in one step to the
+        integrated error in the previous step.
+      \item This lambda function is maximized when $n = 0$. The lowest
+        frequency error converges the slowest, and at a rate
+        proportional to $\Sigma_s/\Sigma_t$.
+      \end{itemize}
+      
+      }
+    }
+
 
 
 \section{Acceleration Methods}
@@ -228,7 +363,10 @@ low-order non-linear diffusion acceleration equation (LONDA),
   }
 }
 
+\frame[c]{\frametitle{Two-grid acceleration}
 
+  
+}
 
 \section{BART}
 
@@ -303,7 +441,7 @@ Solve for $\psi$,
 }
 }
 
-\frame{\frametitle{References}
+\frame[noframenumbering, plain]{\frametitle{References}
 \tiny{\bibliographystyle{plain}}
 \bibliography{bib/bib}
 }
