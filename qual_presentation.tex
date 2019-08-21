@@ -273,7 +273,57 @@ with a given boundary condition,
 
 
 
-\section{Acceleration Methods}
+    \section{Acceleration Methods}
+
+\frame[c]{\frametitle{Two-grid acceleration}
+  Back to the operator form of the multi-group $S_N$ equation,
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \mat{Q}_g\;,
+  \end{align*}
+  \pause
+  And Gauss-Seidel source iteration,
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}^{k+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{k+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^k_{g'}
+    + \mat{Q}_g\;.
+  \end{align*}
+    Subtract the two to get an equation for the error in our iterative method,
+  \begin{align*}
+    \mat{L}_g\mat{\epsilon}^{k+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{k+1}_{g'}
+        + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\varepsilon}^k_{g'}
+  \end{align*}
+    \note{
+      \begin{itemize}     
+      \item Go back to the operator form of the multi-group $S_N$
+        equation.        
+      \item Like in our Fourier analysis, we can subtract the GS
+        iteration scheme from the equation it is trying to solve,
+        giving us an equation for the error.
+      \end{itemize}
+    }
+  }
+
+  \frame[c]{\frametitle{Two-grid acceleration}\
+    \begin{align*}
+      \mat{L}_g\mat{\epsilon}^{k+1}_g = \mat{M}\sum^G_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{k+1}_{g'}
+    + R_g^{k+1}
+  \end{align*}
+  where,
+  \begin{align*}
+    \epsilon_g^{k+1} = \mat{\Psi}_g - \mat{\Psi}_g^{k+1}, \quad
+    \varepsilon_g^{k+1} = \mat{D}\epsilon_g^{k+1}, \\
+    R^{k+1}_g = \mat{M}\sum_{g' =
+    g+1}^{G}\mat{S}_{g'g}\left(\mat{\Phi}_{g'}^{k+1} - \mat{\Phi}_{g'}^{k}\right)
+  \end{align*}
+
+     }
+    
 
 \frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
 %\pause
@@ -363,35 +413,23 @@ low-order non-linear diffusion acceleration equation (LONDA),
   }
 }
 
-\frame[c]{\frametitle{Two-grid acceleration}
-
-  
-}
-
 \section{BART}
 
-\frame[c]{\frametitle{Transport equation second-order forms}
-  Consider the mono-energetic form of the transport equation, using the scattering operator $S\psi(\rvec, \oh) = \int_{4\pi}d\oh'\Sigma_s(\rvec,
-  \oh'\rightarrow\oh)\psi(\rvec,\oh')$:
-  \begin{equation}
-    \label{eq:monoenergetic}
-    \left[\oh\cdot \nabla + \Sigma_t(\rvec)\right]\psi(\rvec, \oh) = 
-    S\psi(\rvec, \oh) + Q
-  \end{equation}
-Substitute $-\oh$ for $\oh$, add to
-Eq.~\eqref{eq:monoenergetic}, and divide by two to get a function of even-
-and odd-parity angular fluxes.
+\frame[c]{\frametitle{Second-order forms of the Transport Equation}
+  There are various second-order forms of the transport equation, that
+  have a second-order derivative of the flux.
+  \begin{itemize}
+  \item Even/Odd-parity equations.
+  \item Weighted least-squared formulation.    
+  \item Self-adjoint angular flux (SAAF).
+  \end{itemize}
 
-\begin{align*}
-  \oh\cdot\nabla\psi^- + \Sigma_t\psi^+ = S^+\psi^+ + Q^+
-\end{align*}
-where,
-\begin{align*}
-  \psi^+ = \frac{1}{2}\left(\psi(\oh) + \psi(-\oh)\right) \\
-  \psi^- = \frac{1}{2}\left(\psi(\oh) - \psi(-\oh)\right) \\
-\end{align*}
+  Benefits of second-order forms:
+  \begin{itemize}
+  \item 
+  \end{itemize}
 
-}
+}  
 
 \frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
   
