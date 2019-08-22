@@ -1,6 +1,6 @@
 % NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
-%\documentclass[xcolor=x11names, compress, handout]{beamer}
 \documentclass[xcolor=x11names, compress]{beamer}
+%\documentclass[xcolor=x11names, compress]{beamer}
 \usepackage{pgfpages}
 \usefonttheme[onlymath]{serif}
 \setbeamerfont{caption}{size=\scriptsize}
@@ -82,7 +82,7 @@ J. S. Rehak\\
 
 \section{Motivation}
 
-\section{\scshape Background}
+\section{\scshape Transport Equation}
 
 \frame[c]{\frametitle{Steady-state Boltzman Transport Equation}
 
@@ -111,7 +111,7 @@ with a given boundary condition,
     method), splitting into $G$ coupled equations.
   \item<2-> Apply a collocation scheme in angle, solving at angles $\oh_a$.
   \item<3-> Expanding scattering cross-section in Legendre Polynomials
-    with a maximum degree $N$ (the $P_N$ method).
+    with a maximum degree $N$.
   \end{itemize}
 
   \only<3>{
@@ -190,6 +190,37 @@ with a given boundary condition,
     + \frac{1}{k}\mat{F}_{g'}\mat{\Phi}^{k}_{g'}\right]\;.
   \end{align*}
 }
+
+\frame[c]{
+  \frametitle{Iterative Solve Error}
+  \onslide<1->{Much of our analysis will require an examination of the error in
+  each step of an iterative method. This is found by subtracting our
+  method from the original equation.}
+  \only<2>{
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \mat{Q}_g \\
+    \mat{L}_g\mat{\Psi}^{i+1}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{i+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^i_{g'}
+    + \mat{Q}_g
+  \end{align*}}
+\onslide<3->{
+  \begin{equation*}
+    \mat{L}_g\mat{\epsilon}^{i+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{i+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\varepsilon}^i_{g'}
+  \end{equation*}
+  \begin{align*}
+    \epsilon^{i+1}_{g} &= \mat{\Psi}_g - \mat{\Psi}_g^{i+1} \\
+    \varepsilon^{i+1}_g &= \mat{D}\epsilon_g^{i+1}
+  \end{align*}
+}
+}
+
+\section{Acceleration Methods}
 
 \frame[c]{\frametitle{Fourier analysis}
   To see how the error in our iterative schemes evolves, we can use
@@ -271,58 +302,96 @@ with a given boundary condition,
       }
     }
 
+\frame[c]{\frametitle{Problem}
 
+\begin{block}{Problem Statement}
+In the presence of up-scattering and a substantial scattering
+cross-section, Gauss-Seidel source-iteration can converge arbitrarily
+slow because the error in diffuse, persistent modes after each iteration reduces by a factor of
+$\Sigma_s/\Sigma_t$.    
+\end{block}
 
-    \section{Acceleration Methods}
-
+\note{ This motivates the development of acceleration schemes to speed
+  up this convergence. This is especially applicable to shielding
+  problems where scattering is dominant}
+  
+}
+    
 \frame[c]{\frametitle{Two-grid acceleration}
-  Back to the operator form of the multi-group $S_N$ equation,
+
+To mitigate this issue Adams and Morel~\cite{Adams1993} developed the
+two-grid method which rests on two assumptions:
+\begin{itemize}
+\item<1-> The persistent error modes can be accurately determined by a
+  course-grid approximation.
+\item<2-> Solving this course-grid approximation is more economical
+  than solving the actual equation.
+\end{itemize}
+\onslide<3->{
+\begin{block}{Two-grid Acceleration}
+  Solve for the error using a course-grid approximation, and use it as
+  a correction to our solution in each step.
+\end{block}}
+
+
+
+\note{
+  \begin{itemize}
+  \item This should speed up the solve by giving an addition reduction
+    in those diffuse persistent error modes.
+  \end{itemize}
+  }
+}
+    
+\frame[c]{\frametitle{Two-grid acceleration}
+  Step 1: Solve the angular $S_N$ source-iteration equation,
   \begin{align*}
-    \mat{L}_g\mat{\Psi}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
-    g}\mat{\Phi}_{g'}
-    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
-    + \mat{Q}_g\;,
-  \end{align*}
-  \pause
-  And Gauss-Seidel source iteration,
-  \begin{align*}
-    \mat{L}_g\mat{\Psi}^{k+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
-    g}\mat{\Phi}^{k+1}_{g'}
+    \mat{L}_g\mat{\Psi}^{i+\frac{1}{2}}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{i+\frac{1}{2}}_{g'}
     + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^k_{g'}
     + \mat{Q}_g\;.
   \end{align*}
-    Subtract the two to get an equation for the error in our iterative method,
+  Step 2: Calculate the isotropic component of the residual,
   \begin{align*}
-    \mat{L}_g\mat{\epsilon}^{k+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
-    g}\mat{\varepsilon}^{k+1}_{g'}
-        + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\varepsilon}^k_{g'}
+    \mat{R}^{i + \frac{1}{2}}_{g, 0} = \sum_{g' =
+    g+1}^{G}\mat{S}_{g'g}\left(\mat{\Phi}^{i + \frac{1}{2}}_{g'} - \mat{\Phi}^{i}_{g'}\right)
   \end{align*}
-    \note{
-      \begin{itemize}     
-      \item Go back to the operator form of the multi-group $S_N$
-        equation.        
-      \item Like in our Fourier analysis, we can subtract the GS
-        iteration scheme from the equation it is trying to solve,
-        giving us an equation for the error.
-      \end{itemize}
-    }
+  Step 3: Calculate the error.
+    \begin{align*}
+      \mat{L}_g\mat{\epsilon}^{i+\frac{1}{2}}_g = \mat{M}\sum^G_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{i+\frac{1}{2}}_{g'}
+    + \mat{R}_g^{i+\frac{1}{2}}
+    \end{align*}
   }
 
-  \frame[c]{\frametitle{Two-grid acceleration}\
-    \begin{align*}
-      \mat{L}_g\mat{\epsilon}^{k+1}_g = \mat{M}\sum^G_{g' = 0}\mat{S}_{g' 
-    g}\mat{\varepsilon}^{k+1}_{g'}
-    + R_g^{k+1}
-  \end{align*}
-  where,
-  \begin{align*}
-    \epsilon_g^{k+1} = \mat{\Psi}_g - \mat{\Psi}_g^{k+1}, \quad
-    \varepsilon_g^{k+1} = \mat{D}\epsilon_g^{k+1}, \\
-    R^{k+1}_g = \mat{M}\sum_{g' =
-    g+1}^{G}\mat{S}_{g'g}\left(\mat{\Phi}_{g'}^{k+1} - \mat{\Phi}_{g'}^{k}\right)
-  \end{align*}
+\frame[c]{\frametitle{Two-grid acceleration}\
 
-     }
+  Step 3a: Calculate error using diffusion approximation.
+      \begin{equation*}
+      \left(-\nabla \cdot D_g \nabla  +
+        \Sigma_g\right)\tilde{\varepsilon}_g^{i+\frac{1}{2}} = \sum_{g' =
+        0}^G\Sigma_{s,g'g,0}\tilde{\varepsilon}_{g'}^{i+\frac{1}{2}} + \mat{R}^{i+\frac{1}{2}}_{g,0}
+    \end{equation*}
+
+    Step 4: Correct the flux
+    \begin{equation*}
+      \mat{\Psi}_g^{i+1} = \mat{\Psi}_g^{i+ \frac{1}{2}} + \mat{M}\tilde{\varepsilon}_{g}^{i+\frac{1}{2}}
+    \end{equation*}
+
+This will accelerate our solution only if it removes more error with
+less work than our original method.
+    
+}
+
+\frame[c]{\frametitle{Two-grid Acceleration}
+
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/two_grid_flowchart}
+    \caption{Two-grid flowchart.\label{fig:two_grid_algorithm}}
+  \end{figure}
+
+}  
     
 
 \frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
@@ -416,22 +485,61 @@ low-order non-linear diffusion acceleration equation (LONDA),
 \section{BART}
 
 \frame[c]{\frametitle{Second-order forms of the Transport Equation}
-  There are various second-order forms of the transport equation, that
-  have a second-order derivative of the flux.
+  There are various second-order, self-adjoint forms of the transport equation.
   \begin{itemize}
-  \item Even/Odd-parity equations.
-  \item Weighted least-squared formulation.    
+  \item Even/Odd-parity equations (EP).
+  \item Weighted least-squared formulation (WLS).    
   \item Self-adjoint angular flux (SAAF).
   \end{itemize}
 
-  Benefits of second-order forms:
+  With advantages and disadvantages compared to the standard
+  first-order forms. Advantages include:
   \begin{itemize}
-  \item 
+  \item They can be solved on multidimensional finite element meshes
+    using standard continuous finite element methods (CFEM).
+  \item CFEM methods result in symmetric positive-definite (SPD)
+    matrices.
+  \item When using the $P_N$ formulation, the flux moments are
+    strongly coupled via $\oh \cdot \nabla$.    
   \end{itemize}
 
-}  
+  \note{
+    \begin{itemize}
+    \item First-order forms of the TE form block lower-triangular that
+      can be swept. But on many meshes, there are slightly re-entrant
+      cells that will break this pattern.
+    \item Solution methods for SPD matrices are better, CG vs. GMRES.
+    \end{itemize}
 
-\frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
+  }
+}
+
+\frame[c]{\frametitle{Second-order forms of the Transport Equation}
+  Disadvantages include:
+  \begin{itemize}
+  \item<1-> CFEM methods result in a general sparse matrix, not a
+    block lower-triangular.
+  \item<2-> In some forms (EP), reflective boundary
+    conditions have fully implicit coupling between incoming and
+    outgoing flux. SAAF avoids this only coupling incoming to
+    outgoing.
+  \item<3-> Full angular flux can be hard to calculate for parity-forms.
+  \item<4-> Difficulties with solving in voids (can be avoided using SAAF).
+  \item<5-> Difficulties in a pure scattering media.
+  \end{itemize}
+
+  \note{
+    \begin{itemize}
+    \item Block lower-triangular would have allowed us to sweep.
+    \item In pure scattering, there is a singularity in the scattering
+      matrix for OP and SAAF in the spherical-harmonic basis. This is
+      because it is diagonal and the first entry is $1/(\Sigma_t -
+      \Sigma_{s0})$ which is $1/0$
+    \end{itemize}
+    }
+  }
+
+  \frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
   
  Start with the single-group first-order transport equation~\cite{Morel1999}:
   \begin{equation}
