@@ -222,6 +222,94 @@ with a given boundary condition,
 
 \section{Acceleration Methods}
 
+\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
+%\pause
+  Start, with the single-group first-order transport
+  equation~\cite{Park2012, Hammer2017}, and integrate over angle:
+  \begin{equation*}
+    \nabla \cdot J_g + \left(\Sigma_{t,g} - \Sigma_s^{g\to g}\right)
+    \phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g,\quad J_g \equiv \int
+    d\oh \oh \psi_g(\oh)\;.
+  \end{equation*}
+  %\pause
+  As a closure to this problem, it is common to define current using \textit{Fick's law},
+  \begin{equation*}
+    J_g = -D\nabla \phi_g\;.
+  \end{equation*}
+  %\pause
+  Construct an additive correction to the current using information
+  from an angular solve:
+  \begin{align*}
+    J_g &= -D\nabla \phi_g + J_g^{\text{ang}} - J_g^{\text{ang}}\\
+        &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
+          D\nabla\phi_g
+  \end{align*}
+  
+  \note{
+    \begin{itemize}
+    \item Uses a lower order diffusion solve to accelerate a higher
+    order solve. 
+  \item Start with the same single-group first-order
+    transport equation, multiply by and integrate over angle, giving the
+    ``neutron continuity equation.''
+  \item We need closure for this problem, so often we use Fick's law,
+    we will introduce a correction onto Fick's Law based on a higher
+    order solve.
+  \item We will introduce an additive correction based on our two
+    definitions of the current.
+    \end{itemize}
+}
+}
+
+\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
+  Fold the additive correction into a \textit{drift-diffusion vector}:
+  \begin{align*}
+    J_g &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
+          D\nabla\phi_g \\
+        &= -D\nabla\phi_g + \left[\frac{\int_{4\pi}d\oh\oh\psi_g +
+          D\nabla\phi_g}{\phi_g}\right]\phi_g \\
+        &= -D \nabla \phi_g + \hat{D}_g\phi_g\;.
+  \end{align*}
+  %\pause
+  Plugging this into our integrated transport equation gives the
+low-order non-linear diffusion acceleration equation (LONDA),
+  \begin{block}{}
+    \begin{equation*}
+      \nabla\cdot\left[-D\nabla + \hat{D}_g\right]\phi_g +
+      \left(\Sigma_{t,g} - \Sigma_s^{g \to g}\right)\phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g
+    \end{equation*}
+  \end{block}
+
+  
+  \note{
+    \begin{itemize}
+    \item We combine these corrections into a drift diffusion vector.
+    \item This gives us the LONDA equation, which is just the same
+      integrated transport equation with a corrected current term.
+    \item Presumably, the ``higher order'' angular solve will have
+      better current information, so we can use it to calculate the drift diffusion vector.
+    \end{itemize}
+  }
+}
+
+\frame[c]{\frametitle{NDA algorithm}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/nda_flowchart}
+    \caption{NDA Algorithm.\label{fig:nda_algorithm}}
+  \end{figure}
+
+  \note{
+    \begin{itemize}
+    \item NDA algorithm showing inner low order loop, and outer high
+      order loop.
+    \item In general, outer loop updates both scattering and fission
+      source, checking for $k$ convergence. Inner loop updates
+      fission source, also checking $k$ convergence.
+    \end{itemize}
+  }
+}
+
 \frame[c]{\frametitle{Fourier analysis}
   To see how the error in our iterative schemes evolves, we can use
   Fourier analysis~\cite{Adams2002}. To do so, we use a one-group, one
@@ -366,9 +454,9 @@ two-grid method which rests on two assumptions:
 
 \frame[c]{\frametitle{Two-grid acceleration}\
 
-  Step 3a: Calculate error using diffusion approximation.
+  Step 3a: Calculate error using integrated diffusion approximation.
       \begin{equation*}
-      \left(-\nabla \cdot D_g \nabla  +
+      \left(-\nabla \cdot \left<D_g\right> \nabla  +
         \Sigma_g\right)\tilde{\varepsilon}_g^{i+\frac{1}{2}} = \sum_{g' =
         0}^G\Sigma_{s,g'g,0}\tilde{\varepsilon}_{g'}^{i+\frac{1}{2}} + \mat{R}^{i+\frac{1}{2}}_{g,0}
     \end{equation*}
@@ -387,102 +475,94 @@ less work than our original method.
 
   \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/two_grid_flowchart}
+    \includegraphics[width=0.9\textwidth]{images/two_grid_flowchart}
     \caption{Two-grid flowchart.\label{fig:two_grid_algorithm}}
   \end{figure}
 
 }  
-    
+   
 
-\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
-%\pause
-  Start, with the single-group first-order transport
-  equation~\cite{Hammer2017}, and integrate over angle:
-  \begin{equation*}
-    \nabla \cdot J_g + \left(\Sigma_{t,g} - \Sigma_s^{g\to g}\right)
-    \phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g,\quad J_g \equiv \int
-    d\oh \oh \psi_g(\oh)\;.
-  \end{equation*}
-  %\pause
-  As a closure to this problem, it is common to define current using \textit{Fick's law},
-  \begin{equation*}
-    J_g = -D\nabla \phi_g\;.
-  \end{equation*}
-  %\pause
-  Construct an additive correction to the current using information
-  from an angular solve:
-  \begin{align*}
-    J_g &= -D\nabla \phi_g + J_g^{\text{ang}} - J_g^{\text{ang}}\\
-        &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
-          D\nabla\phi_g
-  \end{align*}
+\frame[c]{\frametitle{Acceleration Methods}
+  Two acceleration methods:
+  \begin{itemize}
+      \item \textbf{Nonlinear Diffusion Acceleration}: improves the
+    convergence of the multi-group Gauss-Seidel iteration, but suffers
+    from convergence issues with a large amount of upscattering.
+  \item \textbf{Two-grid Acceleration}: improves the convergence of
+    multi-group problems with a large amount of upscattering.
+  \end{itemize}
   
-  \note{
-    \begin{itemize}
-    \item Uses a lower order diffusion solve to accelerate a higher
-    order solve. 
-  \item Start with the same single-group first-order
-    transport equation, multiply by and integrate over angle, giving the
-    ``neutron continuity equation.''
-  \item We need closure for this problem, so often we use Fick's law,
-    we will introduce a correction onto Fick's Law based on a higher
-    order solve.
-  \item We will introduce an additive correction based on our two
-    definitions of the current.
-    \end{itemize}
-}
-}
-
-\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
-  Fold the additive correction into a \textit{drift-diffusion vector}:
-  \begin{align*}
-    J_g &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
-          D\nabla\phi_g \\
-        &= -D\nabla\phi_g + \left[\frac{\int_{4\pi}d\oh\oh\psi_g +
-          D\nabla\phi_g}{\phi_g}\right]\phi_g \\
-        &= -D \nabla \phi_g + \hat{D}_g\phi_g\;.
-  \end{align*}
-  %\pause
-  Plugging this into our integrated transport equation gives the
-low-order non-linear diffusion acceleration equation (LONDA),
-  \begin{block}{}
-    \begin{equation*}
-      \nabla\cdot\left[-D\nabla + \hat{D}_g\right]\phi_g +
-      \left(\Sigma_{t,g} - \Sigma_s^{g \to g}\right)\phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g
-    \end{equation*}
+  \begin{block}{Novel Combination}
+    Use two-grid acceleration to improve the convergence rate of the
+    low-order portion of the NDA solve.
   \end{block}
-
-  
-  \note{
-    \begin{itemize}
-    \item We combine these corrections into a drift diffusion vector.
-    \item This gives us the LONDA equation, which is just the same
-      integrated transport equation with a corrected current term.
-    \item Presumably, the ``higher order'' angular solve will have
-      better current information, so we can use it to calculate the drift diffusion vector.
-    \end{itemize}
-  }
 }
 
-\frame[c]{\frametitle{NDA algorithm}
+\frame[c]{\frametitle{Combining Acceleration Methods}
   \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{images/nda_flowchart}
-    \caption{NDA Algorithm.\label{fig:nda_algorithm}}
+    \includegraphics[width=\textwidth]{images/nda_two_grid}
+    \caption{Two-grid flowchart.\label{fig:two_grid_algorithm}}
+  \end{figure}
+}
+
+\section{Analyzing Acceleration Schemes}
+
+\begin{frame}
+  \frametitle{State of the art}
+  For an acceleration scheme to be worthwhile, it must remove more
+  error from the solution for less work. Defining \textit{work} is
+  challenging. In general, we use inversions of the transport matrix
+  (or \textit{sweeps}) as a unit of ``work.''
+\only<2->{
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/nda_convergence_park}
+    \caption{NDA convergence vs standard power iteration~\cite{Park2012}\label{fig:nda_convergence}}
+  \end{figure}}
+
+\note{
+  The problem with this is that it's unclear how much actual work is
+  being done in each step. You could form an acceleration scheme that
+  solves in a single outer iteration, but is doing so
+  \textit{actually} accelerating removing more error in less work, or
+  just moving work around?
+
+  We can use fourier analysis like before, but things get complicated
+  when we move into multidimensional problems, and start combining
+  accelerating schemes. We need more insight into the acceleration process.
+  }
+\end{frame}
+
+\frame{
+  \frametitle{Iteration issues}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/iteration_table}
+    \caption{Iteration results table.~\cite{Evans2010}\label{fig:iteration_table}}
   \end{figure}
 
   \note{
-    \begin{itemize}
-    \item NDA algorithm showing inner low order loop, and outer high
-      order loop.
-    \item In general, outer loop updates both scattering and fission
-      source, checking for $k$ convergence. Inner loop updates
-      fission source, also checking $k$ convergence.
-    \end{itemize}
+    Here is an example of an iteration table from a paper analyzing
+    the two-grid method. It shows both Gauss-Seidel iterations, within
+    group sweeps and acceleration sweeps, but we don't have a clear
+    idea of what parts of the problem are doing all the work. We don't
+    know where the error is being removed, and if this method is doing
+    it more economically or just shifting it around. The \textit{time}
+    is a good indication, but not ideal. Is it proper to use clock
+    time? CPU Time? How do we know that it's not faster because of
+    better computer science. We not only need insight into the inner
+    workings of acelleration schemes, but we need to disaggregate the
+    computer science from the mathematics.
   }
+  
 }
-
+  
 \section{BART}
+
+
+
+  
 
 \frame[c]{\frametitle{Second-order forms of the Transport Equation}
   There are various second-order, self-adjoint forms of the transport equation.
