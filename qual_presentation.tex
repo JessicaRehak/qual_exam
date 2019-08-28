@@ -18,6 +18,7 @@
 \usepackage[super]{nth}
 \usepackage{sty/commands}
 \usepackage{appendixnumberbeamer}
+\usepackage{hyperref}
 \newcommand\Warning{%
  \makebox[1.4em][c]{%
  \makebox[0pt][c]{\raisebox{.1em}{\small!}}%
@@ -535,7 +536,7 @@ less work than our original method.
 \end{frame}
 
 \frame{
-  \frametitle{Iteration issues}
+  \frametitle{Analysis Challenges}
   \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/iteration_table}
@@ -557,14 +558,239 @@ less work than our original method.
   }
   
 }
+
+\begin{frame}
+  \frametitle{Analysis Challenges}
+  A few challenges when analyzing the effectiveness of acceleration
+  schemes include:
+  \begin{itemize}
+  \item<1-> Our definition of work is based on assumptions about algorithm efficiency.
+  \item<2-> Combining or using complex acelleration schemes may invalidate
+    these assumptions.
+  \item<3-> Implementing new schemes can be complicated, making it
+    difficult to disaggregate implementation from theory. 
+  \item<4-> It can be difficult to reproduce results when accelerated
+    codes are not portable.
+  \end{itemize}
+  
+\end{frame}
   
 \section{BART}
 
+\frame{
+  \frametitle{Design Goals for BART}
+
+  BART is a new code in development designed with features to overcome
+  some of the challenges of analyzing acceleration methods. Four major
+  design goals include:
+  \begin{enumerate}
+  \item<1-> Leverage polymorphism to make implementing new methods
+    easier and limit the code needed to do so.
+  \item<2-> Include tools to analyze the effectiveness of
+    acceleration schemes.
+  \item<3-> Provide a framework for users to experiment with
+    novel combinations of and modifications to existing acceleration
+    schemes.    
+  \item<4-> Utilize modern coding and tests practices to make it
+    easier for users to develop and have confidence in their solutions.
+  \end{enumerate}
+}
+
+\begin{frame}
+  \frametitle{Polymorphism}
+  \begin{figure}[H]
+    \centering
+    \only<1>{\includegraphics[width=\textwidth]{images/poly_1}}
+    \only<2>{\includegraphics[width=\textwidth]{images/poly_2}}
+    \only<3>{\includegraphics[width=\textwidth]{images/poly_3}}
+    \only<4>{\includegraphics[width=\textwidth]{images/poly_4}}
+    \only<5>{\includegraphics[width=\textwidth]{images/poly_5}}
+    \only<6>{\includegraphics[width=\textwidth]{images/poly_6}}
+  \end{figure}  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Polymorphism}
+  \begin{figure}[H]
+    \raggedright
+    \only<1>{\includegraphics[scale=0.55]{images/poly_min_1}}
+    \only<2>{\includegraphics[scale=0.55]{images/poly_min_2}}
+    \only<3->{\includegraphics[scale=0.55]{images/poly_min_3}}
+  \end{figure}
+  \only<4->{
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Polymorphism Benefits}
+  The use of polymorphism in BART
+  \begin{itemize}
+  \item<1-> Minimizes code changes needed to implement new methods,
+    making it faster and easier.
+  \item<2-> Enables a true comparison of the accelerated solve to a
+    control solve.
+  \item<3-> Makes the modifications \textit{portable}.    
+  \item<4-> Enables us to compare the implementation of the method to
+    disaggregate the computer science from the method itself.
+  \end{itemize}
+ 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Instrumentation}
+
+\onslide<1->{ 
+  \begin{block}{Goal 2}
+    Include tools to analyze the effectiveness of
+    acceleration schemes.
+  \end{block}}
+
+\onslide<2->{BART will include the ability to \textit{instrument} different parts
+  of the solve, to gather enough information to assess the
+  effectiveness of acceleration schemes. Ideas for instrumentation
+  are:}
+\begin{itemize}[<3+->]
+  \item Storage of solve parameters (eigenvalues, fluxes) at
+    specified steps interval.    
+  \item Storage of hierarchy of iterations.
+  \item Calculation and storage of error or residual at specified
+    step interval.
+  \item Analysis of error modes via fast Fourier transform.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Framework for experimentation}
+  \only<1>{
+  \begin{block}{Goal 3}
+    Provide a framework for users to experiment with
+    novel combinations of and modifications to existing acceleration
+    schemes.
+  \end{block}}
+\only<2>{
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/bart}
+  \end{figure}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Modern C++}
+  \begin{block}{Goal 4}
+    Utilize modern coding and tests practices to make it
+    easier for users to develop and have confidence in their solutions.
+  \end{block}
+  \begin{itemize}    
+  \item Build using the methods of modern \texttt{C++-14}.
+  \item BART uses the \texttt{googletest} and \texttt{googlemock}
+    libraries for unit testing. Unit testing coverage via \texttt{codecov}
+  \item All dependencies for BART are built in an available Docker
+    container.
+  \item Continuous integration via \texttt{travis.ci}.
+  \end{itemize}  
+    
+\end{frame}
+
+\section{Plan and Future Work}
+
+\frame[label=IMPLEMENTATION]{\frametitle{BART Implementation Plan}
+
+  \onslide<1->{
+  Formulations: 
+  \begin{itemize}
+  \item Interface for \hyperlink{SECOND_ORDER}{second-order} transport equation formulations
+    using continuous finite element methods.
+  \item Implementation of Diffusion.
+  \item Implementation of Self-adjoint angular flux equation.
+  \end{itemize}
+  }
+
+  \onslide<2-> {
+  Acceleration methods:
+  \begin{itemize}
+  \item Nonlinear diffusion acceleration.
+  \item Two-grid acceleration.
+  \item Nonlinear diffusion acceleration with two-grid acceleration.
+  \end{itemize}
+}
+
+\onslide<3-> {
+  Instrumentation:
+  \begin{itemize}
+  \item In-step Fourier-transform.    
+  \item Iteration hierarchy counting.
+  \item Automated runs based on mesh refinement.
+  \end{itemize}
+  }
+}
+
+\begin{frame}
+  \frametitle{Project Deliverables}
+
+  \begin{enumerate}[<+->]
+  \item A new \texttt{C++} code that solves the continuous
+    finite-element discretization of second-order transport equations.
+  \item Implementation of a novel acceleration method that
+    utilizes NDA and TG, NDA-TG.\@
+  \item An in-depth analysis of the three acceleration methods (NDA, TG,
+    NDA-TG) using novel instrumentation implemented in the code.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Future Work}
+  \begin{itemize}[<+->]    
+  \item Addition of Discontinuous-Galerkin Finite Element Formulations support
+    to BART.\@
+  \item More acelleration methods implemented to test different combinations.
+  \item Better or more complex \textit{in situ} analysis of acceleration efficiency.
+  \item Automated acceleration control (adaptive acceleration).
+  \end{itemize}
+\end{frame}
 
 
+\frame[noframenumbering, plain]{\frametitle{References}
+\tiny{\bibliographystyle{plain}}
+\bibliography{bib/bib}
+}
+
+\appendix
+
+\section{Backup Slides}
+
+\frame[c]{\frametitle{Energy discretization}
+  Introduce a discretization of the energy domain $\mathbb{E}$ into $G$
+  non-overlapping elements, such that
+  \begin{align*}
+    E_h = \left\{E_1, E_2, \ldots, E_G\right\}, \quad \mathbb{E} = \bigcup_{g=1}^GE_g
+  \end{align*}
   
+  Assume that the energy-dependent angular flux can be separated into
+  a group angular flux and a energy function within each of
+  these groups
+  \begin{align*}
+    \psi(\rvec, E, \oh) \approx \psi_g(\rvec, \oh)f_g(E), \quad E \in E_g 
+  \end{align*}
 
-\frame[c]{\frametitle{Second-order forms of the Transport Equation}
+  This gives us $G$ coupled equations for each energy group,
+  converting the integral scattering term into a summation,
+  \begin{equation*}
+    \left[\oh\cdot  \nabla +
+      \Sigma_{t,g}(\rvec)\right]\psi_g(\rvec,\oh) = \sum_{g' = 0}^G\Sigma_{s,g'\to g}(\rvec, \oh' \to
+  \oh)\psi_{g'}(\rvec,\oh') + Q_g(\rvec, \oh)\;.
+  \end{equation*}
+
+  \note{
+    \begin{itemize}
+    \item Say that the function $f_g$ is zero inside element, and 0
+      outside, Petrov-Galerkin scheme.
+    \end{itemize}
+    
+    }
+  }
+
+\frame[c, label=SECOND_ORDER]{\frametitle{Second-order forms of the Transport Equation}
   There are various second-order, self-adjoint forms of the transport equation.
   \begin{itemize}
   \item Even/Odd-parity equations (EP).
@@ -650,6 +876,7 @@ Solve for $\psi$,
       \oh \cdot \nabla \psi + \Sigma_t\psi= S\psi + q, \quad \oh
       \cdot \hat{n} > 0 
     \end{equation*}
+    \hyperlink{IMPLEMENTATION}{\beamergotobutton{Back to implementation}}
 \note{The Self-adjoint angular flux equation (SAAF) is a second-order from
   of the transport equation introduced by Morel and McGhee in 1999. To
   derive, consider scattering term part of tte source. Properties of SAAF
@@ -663,49 +890,9 @@ Solve for $\psi$,
     sweeping)
   \item -Pure scattering causes issues like odd-parity
   \end{itemize}
-
 }
 }
-
-\frame[noframenumbering, plain]{\frametitle{References}
-\tiny{\bibliographystyle{plain}}
-\bibliography{bib/bib}
-}
-
-\appendix
-
-\section{Backup Slides}
-
-\frame[c]{\frametitle{Energy discretization}
-  Introduce a discretization of the energy domain $\mathbb{E}$ into $G$
-  non-overlapping elements, such that
-  \begin{align*}
-    E_h = \left\{E_1, E_2, \ldots, E_G\right\}, \quad \mathbb{E} = \bigcup_{g=1}^GE_g
-  \end{align*}
-  
-  Assume that the energy-dependent angular flux can be separated into
-  a group angular flux and a energy function within each of
-  these groups
-  \begin{align*}
-    \psi(\rvec, E, \oh) \approx \psi_g(\rvec, \oh)f_g(E), \quad E \in E_g 
-  \end{align*}
-
-  This gives us $G$ coupled equations for each energy group,
-  converting the integral scattering term into a summation,
-  \begin{equation*}
-    \left[\oh\cdot  \nabla +
-      \Sigma_{t,g}(\rvec)\right]\psi_g(\rvec,\oh) = \sum_{g' = 0}^G\Sigma_{s,g'\to g}(\rvec, \oh' \to
-  \oh)\psi_{g'}(\rvec,\oh') + Q_g(\rvec, \oh)\;.
-  \end{equation*}
-
-  \note{
-    \begin{itemize}
-    \item Say that the function $f_g$ is zero inside element, and 0
-      outside, Petrov-Galerkin scheme.
-    \end{itemize}
-    
-    }
-}
+ 
 
 \end{document}
 
