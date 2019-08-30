@@ -1,10 +1,12 @@
 % NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
-\documentclass[xcolor=x11names, compress]{beamer}
+\documentclass[xcolor=x11names, compress, handout]{beamer}
+%\documentclass[xcolor=x11names, compress]{beamer}
 %\documentclass[xcolor=x11names, compress]{beamer}
 \usepackage{pgfpages}
 \usefonttheme[onlymath]{serif}
 \setbeamerfont{caption}{size=\scriptsize}
-\setbeameroption{show notes on second screen=right}
+% \setbeameroption{show notes on second screen=right}
+\setbeameroption{hide notes}
 \include{neutronics_template}
 \setbeamertemplate{bibliography item}{\insertbiblabel}
 % \setbeamertemplate{note page}{\pagecolor{yellow!5}\insertnote}
@@ -103,40 +105,54 @@ with a given boundary condition,
 
 \begin{frame}
   \frametitle{Iterative Solving Method}
-
+  
   Assuming the source $Q$ is not a function of $\psi$,  we define the
   source-iteration iterative scheme for iteration $i$,
+
   \begin{align*}
-  &\left[ \oh\cdot  \nabla + \Sigma_t(\rvec,E) \right] \psi^{i+1}(\rvec,E,\oh)\\
+  &\left[ \oh\cdot  \nabla + \Sigma_t(\rvec,E) \right] \alert<2>{\psi^{i+1}}(\rvec,E,\oh)\\
   & \quad \quad \quad= \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
-    \psi^{i}(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\rvec, E, \oh)\;,
+    \alert<2>{\psi^{i}}(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\rvec, E, \oh)\;,
   \end{align*}
+
   with the same boundary condition and initial condition
   $\psi^0(\rvec, E, \oh)$.
-  
+
+  \onslide<3->{
+  \begin{block}{Question}
+    How does the error in our iterative solution $\psi^i$ evolve with time?
+  \end{block}}
 \end{frame}
 
-
-
-\frame[c]{\frametitle{Fourier analysis}
-  To see how the error in our iterative schemes evolves, we can use
-  Fourier analysis~\cite{Adams2002}. To do so, we use a one-group, one
-  dimension, infinite homogeneous medium with isotropic scattering.
-  \begin{equation*}
-    \mu\frac{\partial}{\partial x}\psi(x, \mu) + \Sigma_t\psi(x, \mu)
+\frame[c]{\frametitle{Error Analysis}
+  \onslide<2->{
+  Start with the single-energy, one
+  dimension, infinite homogeneous medium with isotropic scattering.}
+\onslide<2->{
+  \begin{equation}
+    \label{eq:single_energy}
+    \left[\mu\frac{\partial}{\partial x} + \Sigma_t\right]\psi(x, \mu)
     = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi(x, \mu')d\mu' +
     \frac{Q}{2}\;.
-  \end{equation*}
-  We define the source iteration scheme as discussed above,
+  \end{equation}}
+\only<2>{
   \begin{equation*}
-    \mu\frac{\partial}{\partial x}\psi^{k+1}(x, \mu) + \Sigma_t\psi^{k+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi^k(x, \mu')d\mu' + \frac{Q}{2}\;.
+    \mu = \cos{\theta}
   \end{equation*}
-   and subtract the two to get an equation for the error in iteration
-   $k$, giving us a similar equation for the error in iteration $k+1$ as it
-   relates to the error in iteration $k$,
-   \begin{equation*}
-         \mu\frac{\partial}{\partial x}e^{k+1}(x, \mu) + \Sigma_te^{k+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}e^k(x, \mu')d\mu'\;.
-   \end{equation*}
+  }
+\onslide<3->{
+  With source iteration scheme,}
+\onslide<3->{
+  \begin{equation}
+        \label{eq:single_energy_iterative}
+    \left[\mu\frac{\partial}{\partial x} + \Sigma_t\right]\psi^{i+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi^i(x, \mu')d\mu' + \frac{Q}{2}\;.
+  \end{equation}}
+\onslide<4->{
+Subtracting Eq.~\eqref{eq:single_energy_iterative} from
+Eq.~\eqref{eq:single_energy} gives an equation for the iteration error,
+\begin{equation*}
+        \left[ \mu\frac{\partial}{\partial x} + \Sigma_t\right]\varepsilon^{i+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\varepsilon^i(x, \mu')d\mu'\;.
+       \end{equation*}}
   \note{
     \begin{itemize}
     \item How can we be sure that source iteration will converge? What
@@ -153,39 +169,54 @@ with a given boundary condition,
     }
   }
 
-\frame[c]{\frametitle{Fourier Analysis}
-  To perform an inverse Fourier transform, we need to choose a
-  measure of spatial variation, an error ``wavelength.''
-  \pause
+\frame[c]{\frametitle{Fourier Analysis} To see how the error evolves
+    in space with each iteration, we can use Fourier
+    analysis~\cite{Adams2002}. \pause Let $\lambda$ define a spatial wavelength,
   \begin{equation*}
-    \lambda = \frac{\ell}{n}, \quad \forall n \in \mathbb{R}
-    \implies \lwn = \frac{1}{\lambda} = \frac{n}{\ell} = n \cdot \Sigma_t
+    \lambda = \frac{\ell}{n}, \quad \ell = \frac{1}{\Sigma_t}, \quad \forall n \in \mathbb{R}\;.
   \end{equation*}
   \pause
-    Perform an inverse Fourier transform,
+  With associated linear wave number,
+  \begin{equation*}
+    \lwn = \frac{1}{\lambda} = \frac{n}{\ell} = n \cdot \Sigma_t\;.
+  \end{equation*}
+  \pause
+    Perform an inverse Fourier transform, expressing error in spatial
+    frequency space,
     \begin{equation*}
-      e^k(x, \mu) = \int_{-\infty}^{\infty}\hat{e}^k(n, \mu)e^{i\Sigma_t n x}dn\;.
+      \varepsilon^i(x, \mu) = \int_{-\infty}^{\infty}\hat{\varepsilon}^i(n, \mu)e^{i\Sigma_t n x}dn\;.
     \end{equation*}
-  \pause
-  After plugging into our equation for error and some rearranging,
-  \begin{equation*}
-    \int_{-1}^{1}\hat{e}^{k+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{e}^{k}(n, \mu')d\mu'\;,
-  \end{equation*}
-  Where
-  \begin{equation*}
-    \Lambda(n) = \frac{\Sigma_s}{\Sigma_t}\cdot \frac{\tan^{-1}{(n)}}{n}\;.
-  \end{equation*}
-       
-    
+
 
     \note{
-      \begin{itemize}
-      \item We can examine the modes of the spatial error by using an
+      We can examine the modes of the spatial error by using an
         inverse Fourier transform. This will give us an idea of how
         the spatial frequencies of the error. We need to decide on an
         error wavelength, which gives us a linear error
         frequency. Higher $n$ means higher error frequency, with $n =
         0$ being infinite wavelength, completely non-coupled error.
+        }
+  }
+
+\frame[c]{
+  \frametitle{Fourier Analysis}
+  After plugging into our equation for error and some rearranging,
+  \begin{equation*}
+    \int_{-1}^{1}\hat{\varepsilon}^{k+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{\varepsilon}^{k}(n, \mu')d\mu'\;,
+  \end{equation*}
+  Where,
+  \begin{equation*}
+    \Lambda(n) = \frac{\Sigma_s}{\Sigma_t}\cdot \frac{\tan^{-1}{(n)}}{n}\;.
+  \end{equation*}
+\pause
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/lambda_function}
+    \caption{$\Lambda(n)$ normalized by $c = \Sigma_s/\Sigma_t$.\label{fig:lambda}}
+  \end{figure}
+
+    \note{
+      \begin{itemize}      
       \item If we plug this back into our previous equation and do a
         large amount of manipulation, we get a fairly simple
         relationship between the integrated error in one step to the
@@ -196,22 +227,283 @@ with a given boundary condition,
       \end{itemize}
       
       }
-    }
+}
 
-\frame[c]{\frametitle{Problem}
+\frame[c]{\frametitle{Conclusion}
 
-\begin{block}{Problem Statement}
-In the presence of up-scattering and a substantial scattering
-cross-section, Gauss-Seidel source-iteration can converge arbitrarily
-slow because the error in diffuse, persistent modes after each iteration reduces by a factor of
-$\Sigma_s/\Sigma_t$.    
+\begin{block}{Conclusion}
+  In the presence of a substantial scattering cross-section,
+  source-iteration can converge arbitrarily slow because the error in
+  diffuse, persistent modes after each iteration reduces by a factor
+  of $\Sigma_s/\Sigma_t$.
 \end{block}
+\pause
+Some acceleration schemes that have been developed:
+\begin{itemize}
+\item Diffusion synthetic acceleration (DSA).
+\item Nonlinear diffusion acceleration (NDA).
+\item Diffusion and transport two-grid methods (TG, TTG).
+\end{itemize}
 
 \note{ This motivates the development of acceleration schemes to speed
   up this convergence. This is especially applicable to shielding
-  problems where scattering is dominant}
+  problems where scattering is dominant, and reactors with a large
+  amount of scattering
+
+  You'll notice these use diffusion, because the diffusion equation
+  will be good at calculating these large diffuse errors that are not
+  coupled to space.
+}
+}
+
+\section{Analyzing Acceleration}
+
+\begin{frame}
+  \frametitle{What is Acceleration?}
+  \pause
+  For an method to \textit{accelerate} the solve, it must remove more
+  error from the solution for less work. Defining \textit{work} is
+  challenging. In general, we use inversions of the transport matrix
+  (or \textit{sweeps}) as a unit of work.
+  \pause
+\only<2->{
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/nda_convergence_park}
+    \caption{NDA convergence vs standard power iteration~\cite{Park2012}\label{fig:nda_convergence}}
+  \end{figure}}
+
+\note{
+  The problem with this is that it's unclear how much actual work is
+  being done in each step. You could form an acceleration scheme that
+  solves in a single outer iteration, but is doing so
+  \textit{actually} accelerating removing more error in less work, or
+  just moving work around?
+
+  We can use Fourier analysis like before, but things get complicated
+  when we move into multidimensional problems, and start combining
+  accelerating schemes. We need more insight into the acceleration process.
+  }
+\end{frame}
+
+\frame{
+  \frametitle{Analysis Challenges}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/iteration_table}
+    \caption{Iteration results table.~\cite{Evans2010}\label{fig:iteration_table}}
+  \end{figure}
+
+  \note{
+    Here is an example of an iteration table from a paper analyzing
+    the two-grid method. It shows both Gauss-Seidel iterations, within
+    group sweeps and acceleration sweeps, but we don't have a clear
+    idea of what parts of the problem are doing all the work. We don't
+    know where the error is being removed, and if this method is doing
+    it more economically or just shifting it around. The \textit{time}
+    is a good indication, but not ideal. Is it proper to use clock
+    time? CPU Time? How do we know that it's not faster because of
+    better computer science. We not only need insight into the inner
+    workings of acceleration schemes, but we need to dis-aggregate the
+    computer science from the mathematics.
+  }
   
 }
+
+\begin{frame}
+  \frametitle{Analysis Challenges}
+  A few challenges when analyzing the effectiveness of acceleration
+  schemes include:
+  \begin{itemize}[<+->]
+  \item Work definition requires assumptions about algorithm efficiency.
+  \item Combined or complex schemes may invalidate assumptions.
+  \item Implementation and reproducibility can be difficult.
+  \end{itemize}
+  
+  \note{
+  \begin{itemize}
+  \item Our definition of work is based on assumptions about
+    algorithmic efficiency of the entire transport solve.
+  \item Combining or using complex acceleration schemes may invalidate
+    these assumptions.
+  \item Implementing new schemes can be complicated, making it
+    difficult to dis-aggregate implementation from theory. 
+  \item It can be difficult to reproduce results when accelerated
+    codes are not portable.
+  \end{itemize}
+    }
+  
+  \end{frame}
+
+\begin{frame}
+  \frametitle{Project Motivation}
+  \begin{block}{Project}
+    To create a novel tool that addresses these challenges, and acts
+    as a laboratory for researchers to develop, test, and analyze
+    acceleration schemes. 
+  \end{block}
+
+  This tool will provide a laboratory for researchers that:
+  \begin{itemize}[<+->]
+  \item Provides a controlled environment to run experiments.
+  \item Provides analysis tools to make informed decisions about the
+    results.
+  \item Acts as a testing ground for new methods.
+  \item Produces code that is portable, reproducible, and testable.
+  \end{itemize}
+
+  \note{
+    \begin{itemize}
+    \item Enables a controlled environment to test methods.      
+    \item Acts as a testing ground for new methods for production codes.
+    \end{itemize}
+
+    }
+  
+  \end{frame}
+
+  \section{BART}
+
+\frame{
+  \frametitle{Design Goals for BART}
+
+  The Bay Area Radiation Transport (BART) is the new code in
+  development with design goals to meet these needs. These goals include:
+  
+  \begin{enumerate}
+  \item<1-> Leverage an object-oriented language and polymorphism.
+  \item<2-> Include analysis tools.
+  \item<3-> Provide a framework for experimentation.
+  \item<4-> Utilize modern coding and tests practices.
+  \end{enumerate}
+
+  \note{
+    \begin{itemize}
+    \item Use object oriented programming and polymorphism to make it
+      easier to implement new methods, and to limit the code needed to
+      do so.
+    \item Include enough tools to allow researchers to analyze the effectiveness of
+      acceleration schemes.      
+    \item Provide an framework for users to experiment with
+    novel combinations of and modifications to existing acceleration
+    schemes.
+  \item Utilize modern coding and tests practices to make it
+    easier for users to develop and have confidence in their solutions.
+    \end{itemize}
+
+    }
+}
+
+\begin{frame}
+  \frametitle{Polymorphism}
+  \begin{figure}[H]
+    \centering
+    \only<1>{\includegraphics[width=\textwidth]{images/poly_1}}
+    \only<2>{\includegraphics[width=\textwidth]{images/poly_2}}
+    \only<3>{\includegraphics[width=\textwidth]{images/poly_3}}
+    \only<4>{\includegraphics[width=\textwidth]{images/poly_4}}
+    \only<5>{\includegraphics[width=\textwidth]{images/poly_5}}
+    \only<6>{\includegraphics[width=\textwidth]{images/poly_6}}
+  \end{figure}  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Polymorphism}
+  \begin{figure}[H]
+    \raggedright
+    \only<1>{\includegraphics[scale=0.55]{images/poly_min_1}}
+    \only<2>{\includegraphics[scale=0.55]{images/poly_min_2}}
+    \only<3->{\includegraphics[scale=0.55]{images/poly_min_3}}
+  \end{figure}
+  \only<4->{
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Polymorphism Benefits}
+  The use of polymorphism in BART
+  \begin{itemize}
+  \item<1-> Minimizes code changes needed to implement new methods,
+    making it faster and easier.
+  \item<2-> Enables a true comparison of the accelerated solve to a
+    control solve.
+  \item<3-> Makes the modifications \textit{portable}.    
+  \item<4-> Enables us to compare the implementation of the method to
+    dis-aggregate the computer science from the method itself.
+  \end{itemize}
+ 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Instrumentation}
+  \begin{block}{Goal 2}
+    Include tools to analyze the effectiveness of
+    acceleration schemes.
+  \end{block}
+  \pause BART will include the ability to \textit{instrument} a solve
+  to gather enough data to draw useful conclusions about the effectiveness of
+  acceleration schemes.  \pause
+\begin{itemize}[<+->]
+  \item Storage of solve parameters (eigenvalues, fluxes).
+  \item Storage of hierarchy of iterations.
+  \item Calculation and storage of error or residual.
+  \item Analysis of Fourier error modes coefficients.
+  \end{itemize}
+
+ \onslide<+->{
+  \begin{block}{}
+    Adding new instrumentation must be easy!
+  \end{block}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Framework for experimentation}
+  \only<1>{
+  \begin{block}{Goal 3}
+    Provide a framework for users to experiment with
+    novel combinations of and modifications to existing acceleration
+    schemes.
+  \end{block}}
+\only<2>{
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/bart}
+  \end{figure}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Modern Coding Practices}
+  \begin{block}{Goal 4}
+    Utilize modern coding and tests practices to make it
+    easier for users to develop and have confidence in their solutions.
+  \end{block}
+  \begin{itemize}
+  \item Build using the methods of modern \texttt{C++-14}.
+  \item Cross-sections have the capability of being stored in Google
+    Protocol Buffers.
+  \item BART uses the \texttt{googletest} and \texttt{googlemock}
+    libraries for unit testing. Unit testing coverage via \texttt{codecov}
+  \item All dependencies for BART are built in an available Docker
+    container.
+  \item Continuous integration via \texttt{travis.ci}.
+  \end{itemize}  
+    
+\end{frame}
+
+\begin{frame}
+  \frametitle{Project Deliverable}
+
+  \begin{enumerate}[<+->]
+  \item A new \texttt{C++} code that solves the transport
+    equation using continuous finite-element methods.
+  \item Implementation of a novel acceleration method.
+  \item An in-depth analysis of this acceleration methods using
+    instrumentation implemented in the code.
+  \end{enumerate}
+\end{frame}
+
+\section{The $S_N$ equations}
 
 \frame[c]{\frametitle{The multigroup $S_N$ equations}
   Apply the following discretizations:
@@ -332,6 +624,25 @@ $\Sigma_s/\Sigma_t$.
   \end{align*}
 }
 }
+
+\frame[c]{\frametitle{Conclusion (Reprise)}
+
+\begin{block}{Conclusion}
+  In the presence of a substantial scattering cross-section,
+  source-iteration can converge arbitrarily slow because the error in
+  diffuse, persistent modes after each iteration reduces by a factor
+  of $\Sigma_s/\Sigma_t$.
+\end{block}
+\onslide<2->{
+To be implemented and analyzed:
+\begin{itemize}[<+->]
+\item Nonlinear diffusion acceleration (NDA).
+\item Diffusion and transport two-grid methods (TG, TTG).
+\item A novel combination of NDA and TG.
+\end{itemize}
+}
+}
+
 \section{Acceleration Methods}
 
 \frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
@@ -523,191 +834,7 @@ less work than our original method.
   \end{figure}
 }
 
-\section{Analyzing Acceleration Schemes}
-
-\begin{frame}
-  \frametitle{State of the art}
-  For an acceleration scheme to be worthwhile, it must remove more
-  error from the solution for less work. Defining \textit{work} is
-  challenging. In general, we use inversions of the transport matrix
-  (or \textit{sweeps}) as a unit of ``work.''
-\only<2->{
-  \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/nda_convergence_park}
-    \caption{NDA convergence vs standard power iteration~\cite{Park2012}\label{fig:nda_convergence}}
-  \end{figure}}
-
-\note{
-  The problem with this is that it's unclear how much actual work is
-  being done in each step. You could form an acceleration scheme that
-  solves in a single outer iteration, but is doing so
-  \textit{actually} accelerating removing more error in less work, or
-  just moving work around?
-
-  We can use Fourier analysis like before, but things get complicated
-  when we move into multidimensional problems, and start combining
-  accelerating schemes. We need more insight into the acceleration process.
-  }
-\end{frame}
-
-\frame{
-  \frametitle{Analysis Challenges}
-  \begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{images/iteration_table}
-    \caption{Iteration results table.~\cite{Evans2010}\label{fig:iteration_table}}
-  \end{figure}
-
-  \note{
-    Here is an example of an iteration table from a paper analyzing
-    the two-grid method. It shows both Gauss-Seidel iterations, within
-    group sweeps and acceleration sweeps, but we don't have a clear
-    idea of what parts of the problem are doing all the work. We don't
-    know where the error is being removed, and if this method is doing
-    it more economically or just shifting it around. The \textit{time}
-    is a good indication, but not ideal. Is it proper to use clock
-    time? CPU Time? How do we know that it's not faster because of
-    better computer science. We not only need insight into the inner
-    workings of acceleration schemes, but we need to dis-aggregate the
-    computer science from the mathematics.
-  }
   
-}
-
-\begin{frame}
-  \frametitle{Analysis Challenges}
-  A few challenges when analyzing the effectiveness of acceleration
-  schemes include:
-  \begin{itemize}
-  \item<1-> Our definition of work is based on assumptions about algorithm efficiency.
-  \item<2-> Combining or using complex acceleration schemes may invalidate
-    these assumptions.
-  \item<3-> Implementing new schemes can be complicated, making it
-    difficult to dis-aggregate implementation from theory. 
-  \item<4-> It can be difficult to reproduce results when accelerated
-    codes are not portable.
-  \end{itemize}
-  
-\end{frame}
-  
-\section{BART}
-
-\frame{
-  \frametitle{Design Goals for BART}
-
-  BART is a new code in development designed with features to overcome
-  some of the challenges of analyzing acceleration methods. Four major
-  design goals include:
-  \begin{enumerate}
-  \item<1-> Leverage polymorphism to make implementing new methods
-    easier and limit the code needed to do so.
-  \item<2-> Include tools to analyze the effectiveness of
-    acceleration schemes.
-  \item<3-> Provide a framework for users to experiment with
-    novel combinations of and modifications to existing acceleration
-    schemes.    
-  \item<4-> Utilize modern coding and tests practices to make it
-    easier for users to develop and have confidence in their solutions.
-  \end{enumerate}
-}
-
-\begin{frame}
-  \frametitle{Polymorphism}
-  \begin{figure}[H]
-    \centering
-    \only<1>{\includegraphics[width=\textwidth]{images/poly_1}}
-    \only<2>{\includegraphics[width=\textwidth]{images/poly_2}}
-    \only<3>{\includegraphics[width=\textwidth]{images/poly_3}}
-    \only<4>{\includegraphics[width=\textwidth]{images/poly_4}}
-    \only<5>{\includegraphics[width=\textwidth]{images/poly_5}}
-    \only<6>{\includegraphics[width=\textwidth]{images/poly_6}}
-  \end{figure}  
-\end{frame}
-
-\begin{frame}
-  \frametitle{Polymorphism}
-  \begin{figure}[H]
-    \raggedright
-    \only<1>{\includegraphics[scale=0.55]{images/poly_min_1}}
-    \only<2>{\includegraphics[scale=0.55]{images/poly_min_2}}
-    \only<3->{\includegraphics[scale=0.55]{images/poly_min_3}}
-  \end{figure}
-  \only<4->{
-  }
-\end{frame}
-
-\begin{frame}
-  \frametitle{Polymorphism Benefits}
-  The use of polymorphism in BART
-  \begin{itemize}
-  \item<1-> Minimizes code changes needed to implement new methods,
-    making it faster and easier.
-  \item<2-> Enables a true comparison of the accelerated solve to a
-    control solve.
-  \item<3-> Makes the modifications \textit{portable}.    
-  \item<4-> Enables us to compare the implementation of the method to
-    dis-aggregate the computer science from the method itself.
-  \end{itemize}
- 
-\end{frame}
-
-\begin{frame}
-  \frametitle{Instrumentation}
-  \begin{block}{Goal 2}
-    Include tools to analyze the effectiveness of
-    acceleration schemes.
-  \end{block}
-\pause
-BART will include the ability to \textit{instrument} different parts
-  of the solve, to gather enough information to assess the
-  effectiveness of acceleration schemes. Ideas for instrumentation
-  are:
-  \pause
-\begin{itemize}[<+->]
-  \item Storage of solve parameters (eigenvalues, fluxes) at
-    specified steps interval.    
-  \item Storage of hierarchy of iterations.
-  \item Calculation and storage of error or residual at specified
-    step interval.
-  \item Analysis of error modes via fast Fourier transform.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Framework for experimentation}
-  \only<1>{
-  \begin{block}{Goal 3}
-    Provide a framework for users to experiment with
-    novel combinations of and modifications to existing acceleration
-    schemes.
-  \end{block}}
-\only<2>{
-  \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{images/bart}
-  \end{figure}
-  }
-\end{frame}
-
-\begin{frame}
-  \frametitle{Modern Coding Practices}
-  \begin{block}{Goal 4}
-    Utilize modern coding and tests practices to make it
-    easier for users to develop and have confidence in their solutions.
-  \end{block}
-  \begin{itemize}
-  \item Build using the methods of modern \texttt{C++-14}.
-  \item Cross-sections have the capability of being stored in Google
-    Protocol Buffers.
-  \item BART uses the \texttt{googletest} and \texttt{googlemock}
-    libraries for unit testing. Unit testing coverage via \texttt{codecov}
-  \item All dependencies for BART are built in an available Docker
-    container.
-  \item Continuous integration via \texttt{travis.ci}.
-  \end{itemize}  
-    
-\end{frame}
 
 \section{Plan and Future Work}
 
@@ -741,19 +868,6 @@ BART will include the ability to \textit{instrument} different parts
   \end{itemize}
   }
 }
-
-\begin{frame}
-  \frametitle{Project Deliverable}
-
-  \begin{enumerate}[<+->]
-  \item A new \texttt{C++} code that solves the continuous
-    finite-element discretization of second-order transport equations.
-  \item Implementation of a novel acceleration method that
-    utilizes NDA and TG, NDA-TG.\@
-  \item An in-depth analysis of the three acceleration methods (NDA, TG,
-    NDA-TG) using novel instrumentation implemented in the code.
-  \end{enumerate}
-\end{frame}
 
 \begin{frame}
   \frametitle{Future Work}
