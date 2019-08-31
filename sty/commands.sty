@@ -30,3 +30,7 @@
 
 % Partial Derivatives
 \newcommand{\pd}[3][]{\frac{\partial^{#1}#2}{\partial{#3}^{#1}}}
+
+\newcommand{\highlight}[1]{\colorbox{yellow}{$\displaystyle #1$}}
+\newcommand{\grayout}[1]{\textcolor{gray}{$\displaystyle #1$}}
+\renewcommand<>{\alert}[1]{\alt#2{\colorbox{yellow}{$#1$}}{#1}}

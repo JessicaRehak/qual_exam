@@ -1,10 +1,12 @@
 % NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
-%\documentclass[xcolor=x11names, compress, handout]{beamer}
-\documentclass[xcolor=x11names, compress]{beamer}
+\documentclass[xcolor=x11names, compress, handout]{beamer}
+%\documentclass[xcolor=x11names, compress]{beamer}
+%\documentclass[xcolor=x11names, compress]{beamer}
 \usepackage{pgfpages}
 \usefonttheme[onlymath]{serif}
 \setbeamerfont{caption}{size=\scriptsize}
-\setbeameroption{show notes on second screen=right}
+% \setbeameroption{show notes on second screen=right}
+\setbeameroption{hide notes}
 \include{neutronics_template}
 \setbeamertemplate{bibliography item}{\insertbiblabel}
 % \setbeamertemplate{note page}{\pagecolor{yellow!5}\insertnote}
@@ -18,6 +20,7 @@
 \usepackage[super]{nth}
 \usepackage{sty/commands}
 \usepackage{appendixnumberbeamer}
+\usepackage{hyperref}
 \newcommand\Warning{%
  \makebox[1.4em][c]{%
  \makebox[0pt][c]{\raisebox{.1em}{\small!}}%
@@ -51,7 +54,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[plain]
 %THIS IS THE TITLE OF THE TALK
-\title{Title of Qualification Exam Talk}
+\title{BART\\\large{A new framework for developing and evaluating
+  acceleration schemes for the neutron transport equation}}
 
 %FEEL FREE TO EDIT THE COVER LAYOUT AS NEEDED
 \author{
@@ -80,20 +84,17 @@ J. S. Rehak\\
   \tableofcontents
 \end{frame}
 
-\section{Motivation}
-
-\section{\scshape Background}
+\section{\scshape Transport Equation}
 
 \frame[c]{\frametitle{Steady-state Boltzman Transport Equation}
 
   Our problem of interest is the time-independent transport equation
-  for a critical system on a domain of interest
-  $\rvec \in V$~\cite{lewis1993},
+  on a domain of interest $\rvec \in V$~\cite{lewis1993},
   
 \begin{align*}
   &\left[ \oh\cdot  \nabla + \Sigma_t(\rvec,E) \right] \psi(\rvec,E,\oh)\\
   & \quad \quad \quad= \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
-    \psi(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\rvec, E, \oh)\;,
+    \psi(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\psi, \rvec, E, \oh)\;,
 \end{align*}
 with a given boundary condition,
 \begin{align*}
@@ -102,7 +103,407 @@ with a given boundary condition,
 \end{align*}
 }
 
+\begin{frame}
+  \frametitle{Iterative Solving Method}
+  
+  Assuming the source $Q$ is not a function of $\psi$,  we define the
+  source-iteration iterative scheme for iteration $i$,
 
+  \begin{align*}
+  &\left[ \oh\cdot  \nabla + \Sigma_t(\rvec,E) \right] \alert<2>{\psi^{i+1}}(\rvec,E,\oh)\\
+  & \quad \quad \quad= \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
+    \alert<2>{\psi^{i}}(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\rvec, E, \oh)\;,
+  \end{align*}
+
+  with the same boundary condition and initial condition
+  $\psi^0(\rvec, E, \oh)$.
+
+  \onslide<3->{
+  \begin{block}{Question}
+    How does the error in our iterative solution $\psi^i$ evolve with time?
+  \end{block}}
+\end{frame}
+
+\frame[c]{\frametitle{Error Analysis}
+  \onslide<2->{
+  Start with the single-energy, one
+  dimension, infinite homogeneous medium with isotropic scattering.}
+\onslide<2->{
+  \begin{equation}
+    \label{eq:single_energy}
+    \left[\mu\frac{\partial}{\partial x} + \Sigma_t\right]\psi(x, \mu)
+    = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi(x, \mu')d\mu' +
+    \frac{Q}{2}\;.
+  \end{equation}}
+\only<2>{
+  \begin{equation*}
+    \mu = \cos{\theta}
+  \end{equation*}
+  }
+\onslide<3->{
+  With source iteration scheme,}
+\onslide<3->{
+  \begin{equation}
+        \label{eq:single_energy_iterative}
+    \left[\mu\frac{\partial}{\partial x} + \Sigma_t\right]\psi^{i+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi^i(x, \mu')d\mu' + \frac{Q}{2}\;.
+  \end{equation}}
+\onslide<4->{
+Subtracting Eq.~\eqref{eq:single_energy_iterative} from
+Eq.~\eqref{eq:single_energy} gives an equation for the iteration error,
+\begin{equation*}
+        \left[ \mu\frac{\partial}{\partial x} + \Sigma_t\right]\varepsilon^{i+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\varepsilon^i(x, \mu')d\mu'\;.
+       \end{equation*}}
+  \note{
+    \begin{itemize}
+    \item How can we be sure that source iteration will converge? What
+      controls the convergence rate? To determine this we can use a Fourier analysis.
+    \item We need to start with a lot of assumptions to get a very
+      simplified version of our transport equation.
+    \item We define what we mean by error, and get an equation that
+      relates the error in each step to the previous
+      step. Unsurprisingly it looks like our original equation,
+      because the evolution of the solution and the evolution of the
+      error are related.
+    \end{itemize}
+
+    }
+  }
+
+\frame[c]{\frametitle{Fourier Analysis} To see how the error evolves
+    in space with each iteration, we can use Fourier
+    analysis~\cite{Adams2002}. \pause Let $\lambda$ define a spatial wavelength,
+  \begin{equation*}
+    \lambda = \frac{\ell}{n}, \quad \ell = \frac{1}{\Sigma_t}, \quad \forall n \in \mathbb{R}\;.
+  \end{equation*}
+  \pause
+  With associated linear wave number,
+  \begin{equation*}
+    \lwn = \frac{1}{\lambda} = \frac{n}{\ell} = n \cdot \Sigma_t\;.
+  \end{equation*}
+  \pause
+    Perform an inverse Fourier transform, expressing error in spatial
+    frequency space,
+    \begin{equation*}
+      \varepsilon^i(x, \mu) = \int_{-\infty}^{\infty}\hat{\varepsilon}^i(n, \mu)e^{i\Sigma_t n x}dn\;.
+    \end{equation*}
+
+
+    \note{
+      We can examine the modes of the spatial error by using an
+        inverse Fourier transform. This will give us an idea of how
+        the spatial frequencies of the error. We need to decide on an
+        error wavelength, which gives us a linear error
+        frequency. Higher $n$ means higher error frequency, with $n =
+        0$ being infinite wavelength, completely non-coupled error.
+        }
+  }
+
+\frame[c]{
+  \frametitle{Fourier Analysis}
+  After plugging into our equation for error and some rearranging,
+  \begin{equation*}
+    \int_{-1}^{1}\hat{\varepsilon}^{k+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{\varepsilon}^{k}(n, \mu')d\mu'\;,
+  \end{equation*}
+  Where,
+  \begin{equation*}
+    \Lambda(n) = \frac{\Sigma_s}{\Sigma_t}\cdot \frac{\tan^{-1}{(n)}}{n}\;.
+  \end{equation*}
+\pause
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{images/lambda_function}
+    \caption{$\Lambda(n)$ normalized by $c = \Sigma_s/\Sigma_t$.\label{fig:lambda}}
+  \end{figure}
+
+    \note{
+      \begin{itemize}      
+      \item If we plug this back into our previous equation and do a
+        large amount of manipulation, we get a fairly simple
+        relationship between the integrated error in one step to the
+        integrated error in the previous step.
+      \item This lambda function is maximized when $n = 0$. The lowest
+        frequency error converges the slowest, and at a rate
+        proportional to $\Sigma_s/\Sigma_t$.
+      \end{itemize}
+      
+      }
+}
+
+\frame[c]{\frametitle{Conclusion}
+
+\begin{block}{Conclusion}
+  In the presence of a substantial scattering cross-section,
+  source-iteration can converge arbitrarily slow because the error in
+  diffuse, persistent modes after each iteration reduces by a factor
+  of $\Sigma_s/\Sigma_t$.
+\end{block}
+\pause
+Some acceleration schemes that have been developed:
+\begin{itemize}
+\item Diffusion synthetic acceleration (DSA).
+\item Nonlinear diffusion acceleration (NDA).
+\item Diffusion and transport two-grid methods (TG, TTG).
+\end{itemize}
+
+\note{ This motivates the development of acceleration schemes to speed
+  up this convergence. This is especially applicable to shielding
+  problems where scattering is dominant, and reactors with a large
+  amount of scattering
+
+  You'll notice these use diffusion, because the diffusion equation
+  will be good at calculating these large diffuse errors that are not
+  coupled to space.
+}
+}
+
+\section{Analyzing Acceleration}
+
+\begin{frame}
+  \frametitle{What is Acceleration?}
+  \pause
+  For an method to \textit{accelerate} the solve, it must remove more
+  error from the solution for less work. Defining \textit{work} is
+  challenging. In general, we use inversions of the transport matrix
+  (or \textit{sweeps}) as a unit of work.
+  \pause
+\only<2->{
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/nda_convergence_park}
+    \caption{NDA convergence vs standard power iteration~\cite{Park2012}\label{fig:nda_convergence}}
+  \end{figure}}
+
+\note{
+  The problem with this is that it's unclear how much actual work is
+  being done in each step. You could form an acceleration scheme that
+  solves in a single outer iteration, but is doing so
+  \textit{actually} accelerating removing more error in less work, or
+  just moving work around?
+
+  We can use Fourier analysis like before, but things get complicated
+  when we move into multidimensional problems, and start combining
+  accelerating schemes. We need more insight into the acceleration process.
+  }
+\end{frame}
+
+\frame{
+  \frametitle{Analysis Challenges}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/iteration_table}
+    \caption{Iteration results table.~\cite{Evans2010}\label{fig:iteration_table}}
+  \end{figure}
+
+  \note{
+    Here is an example of an iteration table from a paper analyzing
+    the two-grid method. It shows both Gauss-Seidel iterations, within
+    group sweeps and acceleration sweeps, but we don't have a clear
+    idea of what parts of the problem are doing all the work. We don't
+    know where the error is being removed, and if this method is doing
+    it more economically or just shifting it around. The \textit{time}
+    is a good indication, but not ideal. Is it proper to use clock
+    time? CPU Time? How do we know that it's not faster because of
+    better computer science. We not only need insight into the inner
+    workings of acceleration schemes, but we need to dis-aggregate the
+    computer science from the mathematics.
+  }
+  
+}
+
+\begin{frame}
+  \frametitle{Analysis Challenges}
+  A few challenges when analyzing the effectiveness of acceleration
+  schemes include:
+  \begin{itemize}[<+->]
+  \item Work definition requires assumptions about algorithm efficiency.
+  \item Combined or complex schemes may invalidate assumptions.
+  \item Implementation and reproducibility can be difficult.
+  \end{itemize}
+  
+  \note{
+  \begin{itemize}
+  \item Our definition of work is based on assumptions about
+    algorithmic efficiency of the entire transport solve.
+  \item Combining or using complex acceleration schemes may invalidate
+    these assumptions.
+  \item Implementing new schemes can be complicated, making it
+    difficult to dis-aggregate implementation from theory. 
+  \item It can be difficult to reproduce results when accelerated
+    codes are not portable.
+  \end{itemize}
+    }
+  
+  \end{frame}
+
+\begin{frame}
+  \frametitle{Project Motivation}
+  \begin{block}{Project}
+    To create a novel tool that addresses these challenges, and acts
+    as a laboratory for researchers to develop, test, and analyze
+    acceleration schemes. 
+  \end{block}
+
+  This tool will provide a laboratory for researchers that:
+  \begin{itemize}[<+->]
+  \item Provides a controlled environment to run experiments.
+  \item Provides analysis tools to make informed decisions about the
+    results.
+  \item Acts as a testing ground for new methods.
+  \item Produces code that is portable, reproducible, and testable.
+  \end{itemize}
+
+  \note{
+    \begin{itemize}
+    \item Enables a controlled environment to test methods.      
+    \item Acts as a testing ground for new methods for production codes.
+    \end{itemize}
+
+    }
+  
+  \end{frame}
+
+  \section{BART}
+
+\frame{
+  \frametitle{Design Goals for BART}
+
+  The Bay Area Radiation Transport (BART) is the new code in
+  development with design goals to meet these needs. These goals include:
+  
+  \begin{enumerate}
+  \item<1-> Leverage an object-oriented language and polymorphism.
+  \item<2-> Include analysis tools.
+  \item<3-> Provide a framework for experimentation.
+  \item<4-> Utilize modern coding and tests practices.
+  \end{enumerate}
+
+  \note{
+    \begin{itemize}
+    \item Use object oriented programming and polymorphism to make it
+      easier to implement new methods, and to limit the code needed to
+      do so.
+    \item Include enough tools to allow researchers to analyze the effectiveness of
+      acceleration schemes.      
+    \item Provide an framework for users to experiment with
+    novel combinations of and modifications to existing acceleration
+    schemes.
+  \item Utilize modern coding and tests practices to make it
+    easier for users to develop and have confidence in their solutions.
+    \end{itemize}
+
+    }
+}
+
+\begin{frame}
+  \frametitle{Polymorphism}
+  \begin{figure}[H]
+    \centering
+    \only<1>{\includegraphics[width=\textwidth]{images/poly_1}}
+    \only<2>{\includegraphics[width=\textwidth]{images/poly_2}}
+    \only<3>{\includegraphics[width=\textwidth]{images/poly_3}}
+    \only<4>{\includegraphics[width=\textwidth]{images/poly_4}}
+    \only<5>{\includegraphics[width=\textwidth]{images/poly_5}}
+    \only<6>{\includegraphics[width=\textwidth]{images/poly_6}}
+  \end{figure}  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Polymorphism}
+  \begin{figure}[H]
+    \raggedright
+    \only<1>{\includegraphics[scale=0.55]{images/poly_min_1}}
+    \only<2>{\includegraphics[scale=0.55]{images/poly_min_2}}
+    \only<3->{\includegraphics[scale=0.55]{images/poly_min_3}}
+  \end{figure}
+  \only<4->{
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Polymorphism Benefits}
+  The use of polymorphism in BART
+  \begin{itemize}
+  \item<1-> Minimizes code changes needed to implement new methods,
+    making it faster and easier.
+  \item<2-> Enables a true comparison of the accelerated solve to a
+    control solve.
+  \item<3-> Makes the modifications \textit{portable}.    
+  \item<4-> Enables us to compare the implementation of the method to
+    dis-aggregate the computer science from the method itself.
+  \end{itemize}
+ 
+\end{frame}
+
+\begin{frame}
+  \frametitle{Instrumentation}
+  \begin{block}{Goal 2}
+    Include tools to analyze the effectiveness of
+    acceleration schemes.
+  \end{block}
+  \pause BART will include the ability to \textit{instrument} a solve
+  to gather enough data to draw useful conclusions about the effectiveness of
+  acceleration schemes.  \pause
+\begin{itemize}[<+->]
+  \item Storage of solve parameters (eigenvalues, fluxes).
+  \item Storage of hierarchy of iterations.
+  \item Calculation and storage of error or residual.
+  \item Analysis of Fourier error modes coefficients.
+  \end{itemize}
+
+ \onslide<+->{
+  \begin{block}{}
+    Adding new instrumentation must be easy!
+  \end{block}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Framework for experimentation}
+  \only<1>{
+  \begin{block}{Goal 3}
+    Provide a framework for users to experiment with
+    novel combinations of and modifications to existing acceleration
+    schemes.
+  \end{block}}
+\only<2>{
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/bart}
+  \end{figure}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Modern Coding Practices}
+  \begin{block}{Goal 4}
+    Utilize modern coding and tests practices to make it
+    easier for users to develop and have confidence in their solutions.
+  \end{block}
+  \begin{itemize}
+  \item Build using the methods of modern \texttt{C++-14}.
+  \item Cross-sections have the capability of being stored in Google
+    Protocol Buffers.
+  \item BART uses the \texttt{googletest} and \texttt{googlemock}
+    libraries for unit testing. Unit testing coverage via \texttt{codecov}
+  \item All dependencies for BART are built in an available Docker
+    container.
+  \item Continuous integration via \texttt{travis.ci}.
+  \end{itemize}  
+    
+\end{frame}
+
+\begin{frame}
+  \frametitle{Project Deliverable}
+
+  \begin{enumerate}[<+->]
+  \item A new \texttt{C++} code that solves the transport
+    equation using continuous finite-element methods.
+  \item Implementation of a novel acceleration method.
+  \item An in-depth analysis of this acceleration methods using
+    instrumentation implemented in the code.
+  \end{enumerate}
+\end{frame}
+
+\section{The $S_N$ equations}
 
 \frame[c]{\frametitle{The multigroup $S_N$ equations}
   Apply the following discretizations:
@@ -111,7 +512,7 @@ with a given boundary condition,
     method), splitting into $G$ coupled equations.
   \item<2-> Apply a collocation scheme in angle, solving at angles $\oh_a$.
   \item<3-> Expanding scattering cross-section in Legendre Polynomials
-    with a maximum degree $N$ (the $P_N$ method).
+    with a maximum degree $N$.
   \end{itemize}
 
   \only<3>{
@@ -144,7 +545,7 @@ with a given boundary condition,
     \end{itemize}
     }
   }
-
+  
 \frame[c]{\frametitle{Iterative Solving Methods}
   Expressed in operator form, this is
   \begin{align*}
@@ -170,7 +571,8 @@ with a given boundary condition,
     \note{
       \begin{itemize}
       \item M is the moment-to-discrete, D is the reverse
-      \item Important to note that the $G$-th energy group is the lowest.
+      \item Important to note that the $G$-th energy group is the
+        lowest.        
       \end{itemize}
       }     
     }
@@ -189,96 +591,64 @@ with a given boundary condition,
     \mat{L}_g\mat{\Psi}^{k+1}_g = \mat{M}\sum^{G}_{g' = 0}\left[\mat{S}_{g'  g}\mat{\Phi}^{0}_{g'}
     + \frac{1}{k}\mat{F}_{g'}\mat{\Phi}^{k}_{g'}\right]\;.
   \end{align*}
+  In general, to converge both the fission and scattering sources,
+    power iteration is paired with source iteration in an inner-outer
+    convergence scheme.
 }
 
-\frame[c]{\frametitle{Fourier analysis}
-  To see how the error in our iterative schemes evolves, we can use
-  Fourier analysis~\cite{Adams2002}. To do so, we use a one-group, one
-  dimension, infinite homogeneous medium with isotropic scattering.
+\frame[c]{
+  \frametitle{Iterative Solve Error}
+  \onslide<1->{Much of our analysis will require an examination of the error in
+  each step of an iterative method. This is found by subtracting our
+  method from the original equation.}
+  \only<2>{
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \mat{Q}_g \\
+    \mat{L}_g\mat{\Psi}^{i+1}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{i+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^i_{g'}
+    + \mat{Q}_g
+  \end{align*}}
+\onslide<3->{
   \begin{equation*}
-    \mu\frac{\partial}{\partial x}\psi(x, \mu) + \Sigma_t\psi(x, \mu)
-    = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi(x, \mu')d\mu' +
-    \frac{Q}{2}\;.
+    \mat{L}_g\mat{\epsilon}^{i+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{i+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\varepsilon}^i_{g'}
   \end{equation*}
-  We define the source iteration scheme as discussed above,
-  \begin{equation*}
-    \mu\frac{\partial}{\partial x}\psi^{k+1}(x, \mu) + \Sigma_t\psi^{k+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}\psi^k(x, \mu')d\mu' + \frac{Q}{2}\;.
-  \end{equation*}
-   and subtract the two to get an equation for the error in iteration
-   $k$, giving us a similar equation for the error in iteration $k+1$ as it
-   relates to the error in iteration $k$,
-   \begin{equation*}
-         \mu\frac{\partial}{\partial x}e^{k+1}(x, \mu) + \Sigma_te^{k+1}(x, \mu) = \frac{\Sigma_s}{2}\int_{-1}^{1}e^k(x, \mu')d\mu'\;.
-   \end{equation*}
-  \note{
-    \begin{itemize}
-    \item How can we be sure that source iteration will converge? What
-      controls the convergence rate? To determine this we can use a Fourier analysis.
-    \item We need to start with a lot of assumptions to get a very
-      simplified version of our transport equation.
-    \item We define what we mean by error, and get an equation that
-      relates the error in each step to the previous
-      step. Unsurprisingly it looks like our original equation,
-      because the evolution of the solution and the evolution of the
-      error are related.
-    \end{itemize}
+  \begin{align*}
+    \epsilon^{i+1}_{g} &= \mat{\Psi}_g - \mat{\Psi}_g^{i+1} \\
+    \varepsilon^{i+1}_g &= \mat{D}\epsilon_g^{i+1}
+  \end{align*}
+}
+}
 
-    }
-  }
+\frame[c]{\frametitle{Conclusion (Reprise)}
 
-\frame[c]{\frametitle{Fourier Analysis}
-  To perform an inverse Fourier transform, we need to choose a
-  measure of spatial variation, an error ``wavelength.''
-  \pause
-  \begin{equation*}
-    \lambda = \frac{\ell}{n}, \quad \forall n \in \mathbb{R}
-    \implies \lwn = \frac{1}{\lambda} = \frac{n}{\ell} = n \cdot \Sigma_t
-  \end{equation*}
-  \pause
-    Perform an inverse Fourier transform,
-    \begin{equation*}
-      e^k(x, \mu) = \int_{-\infty}^{\infty}\hat{e}^k(n, \mu)e^{i\Sigma_t n x}dn\;.
-    \end{equation*}
-  \pause
-  After plugging into our equation for error and some rearranging,
-  \begin{equation*}
-    \int_{-1}^{1}\hat{e}^{k+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{e}^{k}(n, \mu')d\mu'\;,
-  \end{equation*}
-  Where
-  \begin{equation*}
-    \Lambda(n) = \frac{\Sigma_s}{\Sigma_t}\cdot \frac{\tan^{-1}{(n)}}{n}\;.
-  \end{equation*}
-       
-    
-
-    \note{
-      \begin{itemize}
-      \item We can examine the modes of the spatial error by using an
-        inverse fourier transform. This will give us an idea of how
-        the spatial frequencies of the error. We need to decide on an
-        error wavelength, which gives us a linear error
-        frequency. Higher $n$ means higher error frequency, with $n =
-        0$ being infinite wavelength, completely non-coupled error.
-      \item If we plug this back into our previous equation and do a
-        large amount of manipulation, we get a fairly simple
-        relationship between the integrated error in one step to the
-        integrated error in the previous step.
-      \item This lambda function is maximized when $n = 0$. The lowest
-        frequency error converges the slowest, and at a rate
-        proportional to $\Sigma_s/\Sigma_t$.
-      \end{itemize}
-      
-      }
-    }
-
-
+\begin{block}{Conclusion}
+  In the presence of a substantial scattering cross-section,
+  source-iteration can converge arbitrarily slow because the error in
+  diffuse, persistent modes after each iteration reduces by a factor
+  of $\Sigma_s/\Sigma_t$.
+\end{block}
+\onslide<2->{
+To be implemented and analyzed:
+\begin{itemize}[<+->]
+\item Nonlinear diffusion acceleration (NDA).
+\item Diffusion and transport two-grid methods (TG, TTG).
+\item A novel combination of NDA and TG.
+\end{itemize}
+}
+}
 
 \section{Acceleration Methods}
 
 \frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
 %\pause
   Start, with the single-group first-order transport
-  equation~\cite{Hammer2017}, and integrate over angle:
+  equation~\cite{Park2012, Hammer2017}, and integrate over angle:
   \begin{equation*}
     \nabla \cdot J_g + \left(\Sigma_{t,g} - \Sigma_s^{g\to g}\right)
     \phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g,\quad J_g \equiv \int
@@ -362,84 +732,154 @@ low-order non-linear diffusion acceleration equation (LONDA),
     \end{itemize}
   }
 }
-
+    
 \frame[c]{\frametitle{Two-grid acceleration}
 
-  
-}
+To mitigate this issue Adams and Morel~\cite{Adams1993} developed the
+two-grid method which rests on two assumptions:
+\begin{itemize}
+\item<1-> The persistent error modes can be accurately determined by a
+  coarse-grid approximation.
+\item<2-> Solving this coarse-grid approximation is more economical
+  than solving the actual equation.
+\end{itemize}
+\onslide<3->{
+\begin{block}{Two-grid Acceleration}
+  Solve for the error using a coarse-grid approximation, and use it as
+  a correction to our solution in each step.
+\end{block}}
 
-\section{BART}
 
-\frame[c]{\frametitle{Transport equation second-order forms}
-  Consider the mono-energetic form of the transport equation, using the scattering operator $S\psi(\rvec, \oh) = \int_{4\pi}d\oh'\Sigma_s(\rvec,
-  \oh'\rightarrow\oh)\psi(\rvec,\oh')$:
-  \begin{equation}
-    \label{eq:monoenergetic}
-    \left[\oh\cdot \nabla + \Sigma_t(\rvec)\right]\psi(\rvec, \oh) = 
-    S\psi(\rvec, \oh) + Q
-  \end{equation}
-Substitute $-\oh$ for $\oh$, add to
-Eq.~\eqref{eq:monoenergetic}, and divide by two to get a function of even-
-and odd-parity angular fluxes.
 
-\begin{align*}
-  \oh\cdot\nabla\psi^- + \Sigma_t\psi^+ = S^+\psi^+ + Q^+
-\end{align*}
-where,
-\begin{align*}
-  \psi^+ = \frac{1}{2}\left(\psi(\oh) + \psi(-\oh)\right) \\
-  \psi^- = \frac{1}{2}\left(\psi(\oh) - \psi(-\oh)\right) \\
-\end{align*}
-
-}
-
-\frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
-  
- Start with the single-group first-order transport equation~\cite{Morel1999}:
-  \begin{equation}
-    \label{eq:single_group_for_saaf}
-    \oh \cdot \nabla \psi + \Sigma_t \psi = S \psi + q\;.
-  \end{equation}
-  %\pause
-Solve for $\psi$,
-  \begin{equation*}
-    \psi = \frac{1}{\Sigma_t}\left[S\psi + q - \oh \cdot \nabla \psi\right]\;,
-  \end{equation*}
-  and plug back into the gradient term in
-  Eq.\ref{eq:single_group_for_saaf}.
-    %\pause
-  \begin{block}{}
-    \begin{equation*}
-    - \oh \cdot \nabla \frac{1}{\Sigma_t}\oh \cdot \nabla \psi +
-      \Sigma_t \psi = S\psi + q - \oh \cdot \nabla \frac{S\psi +
-        q}{4\pi}
-    \end{equation*}
-  \end{block}
-  With boundary conditions, for all $\vec{r} \in \partial D$:
-  \begin{equation*}
-      \psi = f, \quad \oh
-      \cdot \hat{n} < 0 
-    \end{equation*}
-\begin{equation*}
-      \oh \cdot \nabla \psi + \Sigma_t\psi= S\psi + q, \quad \oh
-      \cdot \hat{n} > 0 
-    \end{equation*}
-\note{The Self-adjoint angular flux equation (SAAF) is a second-order from
-  of the transport equation introduced by Morel and McGhee in 1999. To
-  derive, consider scattering term part of tte source. Properties of SAAF
+\note{
   \begin{itemize}
-  \item +Can solve using standard CFEM methods, which give SPD matrices
-    (can use CG instead of GMRES)  
-  \item +Full angular flux is obtained by solve (unlike Even/Odd
-    parity)
-  \item +BCs only coupled in one direction when reflective
-  \item -General sparse matrix, not block lower-triangular (no
-    sweeping)
-  \item -Pure scattering causes issues like odd-parity
+  \item This should speed up the solve by giving an addition reduction
+    in those diffuse persistent error modes.
   \end{itemize}
+  }
+}
+    
+\frame[c]{\frametitle{Two-grid acceleration}
+  Step 1: Solve the angular $S_N$ source-iteration equation,
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}^{i+\frac{1}{2}}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{i+\frac{1}{2}}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^k_{g'}
+    + \mat{Q}_g\;.
+  \end{align*}
+  Step 2: Calculate the isotropic component of the residual,
+  \begin{align*}
+    \mat{R}^{i + \frac{1}{2}}_{g, 0} = \sum_{g' =
+    g+1}^{G}\mat{S}_{g'g}\left(\mat{\Phi}^{i + \frac{1}{2}}_{g'} - \mat{\Phi}^{i}_{g'}\right)
+  \end{align*}
+  Step 3: Calculate the error.
+    \begin{align*}
+      \mat{L}_g\mat{\epsilon}^{i+\frac{1}{2}}_g = \mat{M}\sum^G_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{i+\frac{1}{2}}_{g'}
+    + \mat{R}_g^{i+\frac{1}{2}}
+    \end{align*}
+  }
 
+\frame[c]{\frametitle{Two-grid acceleration}\
+
+  Step 3a: Calculate error using integrated diffusion approximation.
+      \begin{equation*}
+      \left(-\nabla \cdot \left<D_g\right> \nabla  +
+        \Sigma_g\right)\tilde{\varepsilon}_g^{i+\frac{1}{2}} = \sum_{g' =
+        0}^G\Sigma_{s,g'g,0}\tilde{\varepsilon}_{g'}^{i+\frac{1}{2}} + \mat{R}^{i+\frac{1}{2}}_{g,0}
+    \end{equation*}
+
+    Step 4: Correct the flux
+    \begin{equation*}
+      \mat{\Psi}_g^{i+1} = \mat{\Psi}_g^{i+ \frac{1}{2}} + \mat{M}\tilde{\varepsilon}_{g}^{i+\frac{1}{2}}
+    \end{equation*}
+
+This will accelerate our solution only if it removes more error with
+less work than our original method.
+    
 }
+
+\frame[c]{\frametitle{Two-grid Acceleration}
+
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/two_grid_flowchart}
+    \caption{Two-grid flowchart.\label{fig:two_grid_algorithm}}
+  \end{figure}
+
+}  
+   
+
+\frame[c]{\frametitle{Acceleration Methods}
+  Two acceleration methods:
+  \begin{itemize}
+      \item \textbf{Nonlinear Diffusion Acceleration}: improves the
+    convergence of the multi-group Gauss-Seidel iteration, but suffers
+    from convergence issues with a large amount of upscattering.
+  \item \textbf{Two-grid Acceleration}: improves the convergence of
+    multi-group problems with a large amount of upscattering.
+  \end{itemize}
+  
+  \begin{block}{Novel Combination}
+    Use two-grid acceleration to improve the convergence rate of the
+    low-order portion of the NDA solve.
+  \end{block}
 }
+
+\frame[c]{\frametitle{Combining Acceleration Methods}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/nda_two_grid}
+    \caption{Two-grid flowchart.\label{fig:two_grid_algorithm}}
+  \end{figure}
+}
+
+  
+
+\section{Plan and Future Work}
+
+\frame[label=IMPLEMENTATION]{\frametitle{BART Implementation Plan}
+
+  \onslide<1->{
+  Formulations: 
+  \begin{itemize}
+  \item Interface for \hyperlink{SECOND_ORDER}{second-order} transport equation formulations
+    using continuous finite element methods.
+  \item Implementation of Diffusion.
+  \item Implementation of Self-Adjoint angular flux equation.
+  \end{itemize}
+  }
+
+  \onslide<2-> {
+  Acceleration methods:
+  \begin{itemize}
+  \item Nonlinear diffusion acceleration.
+  \item Two-grid acceleration.
+  \item Nonlinear diffusion acceleration with two-grid acceleration.
+  \end{itemize}
+}
+
+\onslide<3-> {
+  Instrumentation:
+  \begin{itemize}
+  \item In-step Fourier-transform.    
+  \item Iteration hierarchy counting.
+  \item Automated runs based on mesh refinement.
+  \end{itemize}
+  }
+}
+
+\begin{frame}
+  \frametitle{Future Work}
+  \begin{itemize}[<+->]    
+  \item Addition of Discontinuous-Galerkin Finite Element Formulations support
+    to BART.\@
+  \item More acceleration methods implemented to test different combinations.
+  \item Better or more complex \textit{in situ} analysis of acceleration efficiency.
+  \item Automated acceleration control (adaptive acceleration).
+  \end{itemize}
+\end{frame}
+
 
 \frame[noframenumbering, plain]{\frametitle{References}
 \tiny{\bibliographystyle{plain}}
@@ -479,7 +919,111 @@ Solve for $\psi$,
     \end{itemize}
     
     }
+  }
+
+\frame[c, label=SECOND_ORDER]{\frametitle{Second-order forms of the Transport Equation}
+  There are various second-order, self-adjoint forms of the transport equation.
+  \begin{itemize}
+  \item Even/Odd-parity equations (EP).
+  \item Weighted least-squared formulation (WLS).    
+  \item Self-Adjoint angular flux (SAAF).
+  \end{itemize}
+
+  With advantages and disadvantages compared to the standard
+  first-order forms. Advantages include:
+  \begin{itemize}
+  \item They can be solved on multidimensional finite element meshes
+    using standard continuous finite element methods (CFEM).
+  \item CFEM methods result in symmetric positive-definite (SPD)
+    matrices.
+  \item When using the $P_N$ formulation, the flux moments are
+    strongly coupled via $\oh \cdot \nabla$.    
+  \end{itemize}
+
+  \note{
+    \begin{itemize}
+    \item First-order forms of the TE form block lower-triangular that
+      can be swept. But on many meshes, there are slightly re-entrant
+      cells that will break this pattern.
+    \item Solution methods for SPD matrices are better, CG vs. GMRES.
+    \end{itemize}
+
+  }
 }
+
+\frame[c]{\frametitle{Second-order forms of the Transport Equation}
+  Disadvantages include:
+  \begin{itemize}
+  \item<1-> CFEM methods result in a general sparse matrix, not a
+    block lower-triangular.
+  \item<2-> In some forms (EP), reflective boundary
+    conditions have fully implicit coupling between incoming and
+    outgoing flux. SAAF avoids this only coupling incoming to
+    outgoing.
+  \item<3-> Full angular flux can be hard to calculate for parity-forms.
+  \item<4-> Difficulties with solving in voids (can be avoided using SAAF).
+  \item<5-> Difficulties in a pure scattering media.
+  \end{itemize}
+
+  \note{
+    \begin{itemize}
+    \item Block lower-triangular would have allowed us to sweep.
+    \item In pure scattering, there is a singularity in the scattering
+      matrix for OP and SAAF in the spherical-harmonic basis. This is
+      because it is diagonal and the first entry is $1/(\Sigma_t -
+      \Sigma_{s0})$ which is $1/0$
+    \end{itemize}
+    }
+  }
+
+  \frame[c]{\frametitle{Self-adjoint angular flux equation (SAAF)}
+  
+ Start with the single-group first-order transport equation~\cite{Morel1999}:
+  \begin{equation}
+    \label{eq:single_group_for_saaf}
+    \oh \cdot \nabla \psi + \Sigma_t \psi = S \psi + q\;.
+  \end{equation}
+  %\pause
+Solve for $\psi$,
+  \begin{equation*}
+    \psi = \frac{1}{\Sigma_t}\left[S\psi + q - \oh \cdot \nabla \psi\right]\;,
+  \end{equation*}
+  and plug back into the gradient term in
+  Eq.\ref{eq:single_group_for_saaf}.
+    %\pause
+  \begin{block}{}
+    \begin{equation*}
+    - \oh \cdot \nabla \frac{1}{\Sigma_t}\oh \cdot \nabla \psi +
+      \Sigma_t \psi = S\psi + q - \oh \cdot \nabla \frac{S\psi +
+        q}{4\pi}
+    \end{equation*}
+  \end{block}
+  With boundary conditions, for all $\vec{r} \in \partial D$:
+  \begin{equation*}
+      \psi = f, \quad \oh
+      \cdot \hat{n} < 0 
+    \end{equation*}
+\begin{equation*}
+      \oh \cdot \nabla \psi + \Sigma_t\psi= S\psi + q, \quad \oh
+      \cdot \hat{n} > 0 
+    \end{equation*}
+    \hyperlink{IMPLEMENTATION}{\beamergotobutton{Back to implementation}}
+\note{The Self-adjoint angular flux equation (SAAF) is a second-order from
+  of the transport equation introduced by Morel and McGhee in 1999. To
+  derive, consider scattering term part of tte source. Properties of SAAF
+  \begin{itemize}
+  \item +Can solve using standard CFEM methods, which give SPD matrices
+    (can use CG instead of GMRES)  
+  \item +Full angular flux is obtained by solve (unlike Even/Odd
+    parity)
+  \item +BCs only coupled in one direction when reflective
+  \item -General sparse matrix, not block lower-triangular (no
+    sweeping)
+  \item -Pure scattering causes issues like odd-parity
+  \end{itemize}
+}
+}
+ 
 
 \end{document}
 

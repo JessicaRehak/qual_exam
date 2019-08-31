@@ -4,6 +4,22 @@
   publisher = 	 {American Nuclear Society},
   year = 	 {1993},
 }
+
+@article{Adams1993,
+author = {Adams, B. T. and Morel, Jim E.},
+doi = {10.13182/NSE115-253},
+file = {:home/josh/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Adams, Morel - 1993 - A Two-Grid Acceleration Scheme for the Multigroup Sn Equations with Neutron Upscattering.pdf:pdf},
+isbn = {0872629252},
+issn = {0029-5639},
+journal = {Nuclear Science and Engineering},
+mendeley-groups = {Transport EQ/Multigrid,1. Dissertation/Acceleration Schemes/Two-grid},
+number = {May},
+pages = {253--264},
+title = {{A Two-Grid Acceleration Scheme for the Multigroup Sn Equations with Neutron Upscattering}},
+volume = {115},
+year = {1993}
+}
+
 @article{Adams2002,
 abstract = {In discrete-ordinates (SN) simulations of large problems involving linear interactions between radiation and matter, the underlying linear Boltzmann problem is discretized and the resulting system of algebraic equations is solved iteratively. If the physical system contains subregions that are optically thick with small absorption, the simplest iterative process, Source Iteration, is inefficient and costly. During the past 40 years, significant progress has been achieved in the development of acceleration methods that speed up the iterative convergence of these problems. This progress consists of (i) a theory to derive the acceleration strategies, (ii) a theory to predict the convergence properties of the new strategies, and (iii) the implementation of these concepts in production computer codes. In this Review we discuss the theoretical foundations of this work, the important results that have been accomplished, and remaining open questions.},
 author = {Adams, Marvin L. and Larsen, Edward W.},
@@ -15,6 +31,35 @@ keywords = {Acceleration,Discrete ordinates,Iteration,Transport},
 mendeley-groups = {Transport EQ/Discretization/DO,0. Reference/Reviews},
 title = {{Fast iterative methods for discrete-ordinates particle transport calculations}},
 year = {2002}
+}
+
+@article{Anistratov2011,
+abstract = {The methods for solving k-eigenvalue problems for the multigroup neutron transport equation in one-dimensional slab geometry are presented. They are defined by means of multigroup and effective grey (one-group) low-order quasidiffusion (QD) equations. In this paper we formulate and study different variants of nonlinear QD iteration algorithms. These methods are analyzed on a set of test problems designed using C5G7 benchmark data. We present numerical results that demonstrate the performance of iteration schemes in different types of reactor physics problems. We consider tests that represent singleassembly and color-set calculations as well as a problem with elements of full-core computations involving a reflector zone.},
+author = {Anistratov, Dmitriy Y. and Gol'din, Vladimir Ya},
+doi = {10.13182/NSE10-64},
+file = {:home/josh/Downloads/multi{\_}level{\_}quasidiffusion.pdf:pdf},
+issn = {00295639},
+journal = {Nuclear Science and Engineering},
+mendeley-groups = {Transport EQ/Multigrid,1. Dissertation/Acceleration Schemes/Multigrid},
+number = {2},
+pages = {111--132},
+title = {{Multilevel quasidiffusion methods for solving multigroup neutron transport k-eigenvalue problems in one-dimensional slab geometry}},
+volume = {169},
+year = {2011}
+}
+
+@article{Evans2010,
+abstract = {We have developed a modification of the two-grid upscatter acceleration scheme of Adams and Morel. The modified scheme uses a low-angular-order discrete ordinates equation to accelerate Gauss-Seidel multigroup iteration. This modification ensures that the scheme does not suffer from consistency problems that can affect diffusion-acclerated methods in multidimensional, multimaterial problems. The new transport two-grid scheme is very simple to implement for different spatial discretizations because it uses the same transport operator. The scheme has also been demonstrated to be very effective on three-dimensional, multimaterial problems. On simple one-dimensional graphite and heavy-water slabs modeled in three dimensions with reflecting boundary conditions, we see reductions in the number of Gauss-Seidel iterations by factors of 75 to 1000. We have also demonstrated the effectiveness of the new method on neutron well-logging problems. For forward problems, the new acceleration scheme reduces the number of Gauss-Seidel iterations by more than an order of magnitude with a corresponding reduction in the run time. For adjoint problems, the speedup is not as dramatic, but the new method still reduces the run time by greater than a factor of 6.},
+author = {Evans, Thomas M. and Clarno, Kevin T. and Morel, Jim E.},
+doi = {10.13182/NSE09-28},
+file = {:home/josh/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Evans, Clarno, Morel - 2010 - A Transport Acceleration Scheme for Multigroup Discrete Ordinates with Upscattering.pdf:pdf},
+issn = {00295639},
+journal = {Nuclear Science and Engineering},
+mendeley-groups = {Transport EQ/Multigrid,1. Dissertation/Acceleration Schemes/Two-grid},
+pages = {292--304},
+title = {{A Transport Acceleration Scheme for Multigroup Discrete Ordinates with Upscattering}},
+volume = {165},
+year = {2010}
 }
 
 @inproceedings{Hammer2017,
@@ -43,3 +88,21 @@ title = {{A Self-Adjoint Angular Flux Equation}},
 volume = {132},
 year = {1999}
 }
+
+@article{Park2012,
+abstract = {We present a nonlinear acceleration algorithm for a transport criticality problem. The algo- rithm combines the well-known nonlinear diffusion acceleration (NDA) algorithm with a recently devel- oped, Newton-based nonlinear criticality acceleration (NCA) algorithm. The algorithm first employs NDA to reduce the system to scalar flux, then NCA is applied to the resulting drift-diffusion system. We apply a nonlinear elimination technique to eliminate the eigenvalue constraint equation from the Jacobian matrix. Numerical results show that the algorithm can reduce the CPU time by a factor of 30 to 400 compared to traditional power iterations (PIs) combined with standard source iterations and by a factor of 3 to 5 compared to application of NDA combined with inner PIs.},
+author = {Park, H. and Knoll, D. A. and Newman, C. K.},
+doi = {10.13182/NSE11-81},
+file = {:home/josh/.local/share/data/Mendeley Ltd./Mendeley Desktop/Downloaded/Park, Knoll, Newman - 2012 - Nonlinear Acceleration of Transport Criticality Problems.pdf:pdf},
+isbn = {9788563688002},
+issn = {0029-5639},
+journal = {Nuclear Science and Engineering},
+mendeley-groups = {1. Dissertation/Acceleration Schemes/NDA},
+number = {1},
+pages = {52--65},
+title = {{Nonlinear Acceleration of Transport Criticality Problems}},
+url = {https://www.tandfonline.com/doi/full/10.13182/NSE11-81},
+volume = {172},
+year = {2012}
+}
+
