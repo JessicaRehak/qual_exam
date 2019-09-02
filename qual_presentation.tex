@@ -1,12 +1,11 @@
 % NEUTRONICS BEAMER TEMPLATE -- START EDITING IN LINE 90
-\documentclass[xcolor=x11names, compress, handout]{beamer}
-%\documentclass[xcolor=x11names, compress]{beamer}
-%\documentclass[xcolor=x11names, compress]{beamer}
+%\documentclass[xcolor=x11names, compress, handout]{beamer}
+\documentclass[xcolor=x11names, compress]{beamer}
 \usepackage{pgfpages}
 \usefonttheme[onlymath]{serif}
 \setbeamerfont{caption}{size=\scriptsize}
-% \setbeameroption{show notes on second screen=right}
-\setbeameroption{hide notes}
+\setbeameroption{show notes on second screen=right}
+%\setbeameroption{hide notes}
 \include{neutronics_template}
 \setbeamertemplate{bibliography item}{\insertbiblabel}
 % \setbeamertemplate{note page}{\pagecolor{yellow!5}\insertnote}
@@ -32,14 +31,21 @@
 %%%%%%%%%%%%%%%%%%%%%%
 
 \AtBeginSection[]{
-  \begin{frame}[noframenumbering, plain]
-  \vfill
-  \centering
-  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
-    \usebeamerfont{title}\insertsectionhead\par%
-  \end{beamercolorbox}
-  \vfill
-  \end{frame}
+  \AtBeginSection[]
+  {
+     \begin{frame}[noframenumbering, plain]
+     \frametitle{Outline}
+     \tableofcontents[currentsection]
+     \end{frame}
+  }
+  % \begin{frame}[noframenumbering, plain]
+  % \vfill
+  % \centering
+  % \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+  %   \usebeamerfont{title}\insertsectionhead\par%
+  % \end{beamercolorbox}
+  % \vfill
+  % \end{frame}
 }
 
 %THIS IS THE INFO AT THE BOTTOM OF YOUR FRAMES
@@ -238,12 +244,17 @@ Eq.~\eqref{eq:single_energy} gives an equation for the iteration error,
   of $\Sigma_s/\Sigma_t$.
 \end{block}
 \pause
-Some acceleration schemes that have been developed:
+Some acceleration schemes that have been developed to mitigate this issue:
 \begin{itemize}
 \item Diffusion synthetic acceleration (DSA).
-\item Nonlinear diffusion acceleration (NDA).
 \item Diffusion and transport two-grid methods (TG, TTG).
 \end{itemize}
+\pause
+\begin{block}{Note}
+  This is not the only portion of the transport solve that
+  acceleration schemes are developed for.
+\end{block}
+
 
 \note{ This motivates the development of acceleration schemes to speed
   up this convergence. This is especially applicable to shielding
@@ -480,8 +491,6 @@ Some acceleration schemes that have been developed:
   \end{block}
   \begin{itemize}
   \item Build using the methods of modern \texttt{C++-14}.
-  \item Cross-sections have the capability of being stored in Google
-    Protocol Buffers.
   \item BART uses the \texttt{googletest} and \texttt{googlemock}
     libraries for unit testing. Unit testing coverage via \texttt{codecov}
   \item All dependencies for BART are built in an available Docker
@@ -492,13 +501,39 @@ Some acceleration schemes that have been developed:
 \end{frame}
 
 \begin{frame}
-  \frametitle{Project Deliverable}
+  \frametitle{Protocol Buffers}
+  Cross-sections can be stored in a novel protocol buffer format.
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \pause
+      Benefits:
+  \begin{itemize}[<+->]
+  \item Structured data format.
+  \item Automatic generation of parsing code.
+  \item Very fast parsing and small file size.
+  \end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}  %%<--- here
+    \begin{center}
+     \includegraphics[width=\textwidth]{images/protocol_buffer}
+     \end{center}
+\end{column}
+\end{columns}
+
+  
+
+    
+\end{frame}
+
+\begin{frame}
+  \frametitle{Project Deliverables}
 
   \begin{enumerate}[<+->]
   \item A new \texttt{C++} code that solves the transport
     equation using continuous finite-element methods.
+  \item A new cross-section and material storage method using protocol buffers.
   \item Implementation of a novel acceleration method.
-  \item An in-depth analysis of this acceleration methods using
+  \item A novel analysis of this acceleration methods using
     instrumentation implemented in the code.
   \end{enumerate}
 \end{frame}
@@ -594,51 +629,26 @@ Some acceleration schemes that have been developed:
   In general, to converge both the fission and scattering sources,
     power iteration is paired with source iteration in an inner-outer
     convergence scheme.
-}
+  }
 
-\frame[c]{
-  \frametitle{Iterative Solve Error}
-  \onslide<1->{Much of our analysis will require an examination of the error in
-  each step of an iterative method. This is found by subtracting our
-  method from the original equation.}
-  \only<2>{
-  \begin{align*}
-    \mat{L}_g\mat{\Psi}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
-    g}\mat{\Phi}_{g'}
-    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
-    + \mat{Q}_g \\
-    \mat{L}_g\mat{\Psi}^{i+1}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
-    g}\mat{\Phi}^{i+1}_{g'}
-    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^i_{g'}
-    + \mat{Q}_g
-  \end{align*}}
-\onslide<3->{
-  \begin{equation*}
-    \mat{L}_g\mat{\epsilon}^{i+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
-    g}\mat{\varepsilon}^{i+1}_{g'}
-    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\varepsilon}^i_{g'}
-  \end{equation*}
-  \begin{align*}
-    \epsilon^{i+1}_{g} &= \mat{\Psi}_g - \mat{\Psi}_g^{i+1} \\
-    \varepsilon^{i+1}_g &= \mat{D}\epsilon_g^{i+1}
-  \end{align*}
-}
-}
+\frame[c]{\frametitle{Convergence Challenges}
 
-\frame[c]{\frametitle{Conclusion (Reprise)}
-
-\begin{block}{Conclusion}
-  In the presence of a substantial scattering cross-section,
-  source-iteration can converge arbitrarily slow because the error in
-  diffuse, persistent modes after each iteration reduces by a factor
-  of $\Sigma_s/\Sigma_t$.
+\begin{block}{Convergence of Source Iteration}
+  Gauss-Seidel source iteration can converge arbitrarily slow as
+  $\Sigma_s/\Sigma_t$ approaches unity.
 \end{block}
-\onslide<2->{
-To be implemented and analyzed:
+\pause
+\begin{block}{Convergence of Power Iteration}
+  Power iteration can convergence arbitrarily slow as the dominance
+  ratio $k_1/k_0$ approaches unity.
+\end{block}
+
+\onslide<+->{
+Different acceleration schemes address different issues:
 \begin{itemize}[<+->]
-\item Nonlinear diffusion acceleration (NDA).
-\item Diffusion and transport two-grid methods (TG, TTG).
-\item A novel combination of NDA and TG.
+\item Power Iteration: Nonlinear diffusion acceleration (NDA).
+\item Source Iteration: Diffusion two-grid method (TG).
+\item Both: A novel combination of NDA and TG.
 \end{itemize}
 }
 }
@@ -646,7 +656,24 @@ To be implemented and analyzed:
 \section{Acceleration Methods}
 
 \frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
-%\pause
+  \begin{block}{Big Idea}
+    Accelerate power iteration by using a diffusion solve in place of
+    the standard transport equation source iteration~\cite{Park2012}.
+  \end{block}
+
+  Couples an angular solve with a diffusion solve and,
+  \begin{itemize}
+  \item Uses the angular solve to improve accuracy of diffusion
+    solve via current.
+  \item Uses the diffusion solve to improve accuracy of angular solve
+    via scalar flux.
+  \end{itemize}
+}
+
+
+
+\frame[c]{\frametitle{Nonlinear Diffusion Acceleration (NDA)}
+\pause
   Start, with the single-group first-order transport
   equation~\cite{Park2012, Hammer2017}, and integrate over angle:
   \begin{equation*}
@@ -654,16 +681,16 @@ To be implemented and analyzed:
     \phi_g = \sum_{g' \neq g}\Sigma_s^{g' \to g}\phi_{g'} + q_g,\quad J_g \equiv \int
     d\oh \oh \psi_g(\oh)\;.
   \end{equation*}
-  %\pause
+  \pause
   As a closure to this problem, it is common to define current using \textit{Fick's law},
   \begin{equation*}
     J_g = -D\nabla \phi_g\;.
   \end{equation*}
-  %\pause
+  \pause
   Construct an additive correction to the current using information
   from an angular solve:
   \begin{align*}
-    J_g &= -D\nabla \phi_g + J_g^{\text{ang}} - J_g^{\text{ang}}\\
+    J_g &= -D\nabla \phi_g + J_g - J_g\\
         &= -D\nabla \phi_g + \int_{4\pi}d\oh\oh\psi_g +
           D\nabla\phi_g
   \end{align*}
@@ -735,7 +762,7 @@ low-order non-linear diffusion acceleration equation (LONDA),
     
 \frame[c]{\frametitle{Two-grid acceleration}
 
-To mitigate this issue Adams and Morel~\cite{Adams1993} developed the
+To mitigate convergence issues in source-iteration Adams and Morel~\cite{Adams1993} developed the
 two-grid method which rests on two assumptions:
 \begin{itemize}
 \item<1-> The persistent error modes can be accurately determined by a
@@ -880,6 +907,13 @@ less work than our original method.
   \end{itemize}
 \end{frame}
 
+\begin{frame}[noframenumbering, plain]
+  \vfill
+  \centering
+  Thank you for your time!
+  \vfill
+\end{frame}
+
 
 \frame[noframenumbering, plain]{\frametitle{References}
 \tiny{\bibliographystyle{plain}}
@@ -920,6 +954,36 @@ less work than our original method.
     
     }
   }
+
+\frame[c]{
+  \frametitle{Iterative Solve Error}
+  \onslide<1->{Much of our analysis will require an examination of the error in
+  each step of an iterative method. This is found by subtracting our
+  method from the original equation.}
+  \only<2>{
+  \begin{align*}
+    \mat{L}_g\mat{\Psi}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}_{g'}
+    + \mat{Q}_g \\
+    \mat{L}_g\mat{\Psi}^{i+1}_g &= \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\Phi}^{i+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^i_{g'}
+    + \mat{Q}_g
+  \end{align*}}
+\onslide<3->{
+  \begin{equation*}
+    \mat{L}_g\mat{\epsilon}^{i+1}_g = \mat{M}\sum^g_{g' = 0}\mat{S}_{g' 
+    g}\mat{\varepsilon}^{i+1}_{g'}
+    + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\varepsilon}^i_{g'}
+  \end{equation*}
+  \begin{align*}
+    \epsilon^{i+1}_{g} &= \mat{\Psi}_g - \mat{\Psi}_g^{i+1} \\
+    \varepsilon^{i+1}_g &= \mat{D}\epsilon_g^{i+1}
+  \end{align*}
+}
+}
+  
 
 \frame[c, label=SECOND_ORDER]{\frametitle{Second-order forms of the Transport Equation}
   There are various second-order, self-adjoint forms of the transport equation.
