@@ -34,8 +34,19 @@
   \AtBeginSection[]
   {
      \begin{frame}[noframenumbering, plain]
-     \frametitle{Outline}
-     \tableofcontents[currentsection]
+
+  \frametitle{Outline}
+  %\hfill                        
+  \centering
+  \begin{minipage}[t][0.5\textheight]{0.75\textwidth}
+   \linespread{2.0}
+   \tableofcontents[currentsection]
+ \end{minipage}
+  % \parbox{0.73\textwidth}{
+  %   \tableofcontents
+  %   }
+      
+
      \end{frame}
   }
   % \begin{frame}[noframenumbering, plain]
@@ -87,7 +98,15 @@ J. S. Rehak\\
 
 \begin{frame}
   \frametitle{Outline}
-  \tableofcontents
+  %\hfill                        
+  \centering
+  \begin{minipage}[t][0.5\textheight]{0.75\textwidth}
+   \linespread{2.0}
+   \tableofcontents
+ \end{minipage}
+  % \parbox{0.73\textwidth}{
+  %   \tableofcontents
+  %   }
 \end{frame}
 
 \section{\scshape Transport Equation}
@@ -100,7 +119,7 @@ J. S. Rehak\\
 \begin{align*}
   &\left[ \oh\cdot  \nabla + \Sigma_t(\rvec,E) \right] \psi(\rvec,E,\oh)\\
   & \quad \quad \quad= \int_0^{\infty}dE'\int_{4\pi}d\oh'\Sigma_s(\rvec, E'\rightarrow E,\oh'\rightarrow\oh)
-    \psi(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\psi, \rvec, E, \oh)\;,
+    \psi(\rvec,E',\oh') \\ & \quad \quad \quad+ Q(\rvec, E, \oh)\;,
 \end{align*}
 with a given boundary condition,
 \begin{align*}
@@ -208,7 +227,7 @@ Eq.~\eqref{eq:single_energy} gives an equation for the iteration error,
   \frametitle{Fourier Analysis}
   After plugging into our equation for error and some rearranging,
   \begin{equation*}
-    \int_{-1}^{1}\hat{\varepsilon}^{k+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{\varepsilon}^{k}(n, \mu')d\mu'\;,
+    \int_{-1}^{1}\hat{\varepsilon}^{i+1}(n, \mu)d\mu = \Lambda(n)\int_{-1}^{1}\hat{\varepsilon}^{i}(n, \mu')d\mu'\;,
   \end{equation*}
   Where,
   \begin{equation*}
@@ -235,9 +254,9 @@ Eq.~\eqref{eq:single_energy} gives an equation for the iteration error,
       }
 }
 
-\frame[c]{\frametitle{Conclusion}
+\frame[c]{\frametitle{Fourier Conclusion}
 
-\begin{block}{Conclusion}
+\begin{block}{Fourier Analysis Conclusion}
   In the presence of a substantial scattering cross-section,
   source-iteration can converge arbitrarily slow because the error in
   diffuse, persistent modes after each iteration reduces by a factor
@@ -271,18 +290,15 @@ Some acceleration schemes that have been developed to mitigate this issue:
 
 \begin{frame}
   \frametitle{What is Acceleration?}
-  \pause
   For an method to \textit{accelerate} the solve, it must remove more
   error from the solution for less work. Defining \textit{work} is
   challenging. In general, we use inversions of the transport matrix
   (or \textit{sweeps}) as a unit of work.
-  \pause
-\only<2->{
   \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/nda_convergence_park}
     \caption{NDA convergence vs standard power iteration~\cite{Park2012}\label{fig:nda_convergence}}
-  \end{figure}}
+  \end{figure}
 
 \note{
   The problem with this is that it's unclear how much actual work is
@@ -355,7 +371,7 @@ Some acceleration schemes that have been developed to mitigate this issue:
   \end{block}
 
   This tool will provide a laboratory for researchers that:
-  \begin{itemize}[<+->]
+  \begin{itemize}
   \item Provides a controlled environment to run experiments.
   \item Provides analysis tools to make informed decisions about the
     results.
@@ -378,14 +394,14 @@ Some acceleration schemes that have been developed to mitigate this issue:
 \frame{
   \frametitle{Design Goals for BART}
 
-  The Bay Area Radiation Transport (BART) is the new code in
-  development with design goals to meet these needs. These goals include:
+  The Bay Area Radiation Transport (BART) is a new code in
+  development with some design goals to meet these needs. These goals include:
   
   \begin{enumerate}
-  \item<1-> Leverage an object-oriented language and polymorphism.
-  \item<2-> Include analysis tools.
-  \item<3-> Provide a framework for experimentation.
-  \item<4-> Utilize modern coding and tests practices.
+  \item Leverage an object-oriented language and polymorphism.
+  \item Include analysis tools.
+  \item Provide a framework for experimentation.
+  \item Utilize modern coding and testing practices.
   \end{enumerate}
 
   \note{
@@ -398,7 +414,7 @@ Some acceleration schemes that have been developed to mitigate this issue:
     \item Provide an framework for users to experiment with
     novel combinations of and modifications to existing acceleration
     schemes.
-  \item Utilize modern coding and tests practices to make it
+  \item Utilize modern coding and test practices to make it
     easier for users to develop and have confidence in their solutions.
     \end{itemize}
 
@@ -451,10 +467,10 @@ Some acceleration schemes that have been developed to mitigate this issue:
     Include tools to analyze the effectiveness of
     acceleration schemes.
   \end{block}
-  \pause BART will include the ability to \textit{instrument} a solve
+  BART will include the ability to \textit{instrument} a solve
   to gather enough data to draw useful conclusions about the effectiveness of
-  acceleration schemes.  \pause
-\begin{itemize}[<+->]
+  acceleration schemes.
+\begin{itemize}
   \item Storage of solve parameters (eigenvalues, fluxes).
   \item Storage of hierarchy of iterations.
   \item Calculation and storage of error or residual.
@@ -490,7 +506,7 @@ Some acceleration schemes that have been developed to mitigate this issue:
     easier for users to develop and have confidence in their solutions.
   \end{block}
   \begin{itemize}
-  \item Build using the methods of modern \texttt{C++-14}.
+  \item Build using the methods of modern \texttt{C++14}.
   \item BART uses the \texttt{googletest} and \texttt{googlemock}
     libraries for unit testing. Unit testing coverage via \texttt{codecov}
   \item All dependencies for BART are built in an available Docker
@@ -505,9 +521,8 @@ Some acceleration schemes that have been developed to mitigate this issue:
   Cross-sections can be stored in a novel protocol buffer format.
   \begin{columns}
     \begin{column}{0.5\textwidth}
-      \pause
       Benefits:
-  \begin{itemize}[<+->]
+  \begin{itemize}
   \item Structured data format.
   \item Automatic generation of parsing code.
   \item Very fast parsing and small file size.
@@ -533,8 +548,8 @@ Some acceleration schemes that have been developed to mitigate this issue:
     equation using continuous finite-element methods.
   \item A new cross-section and material storage method using protocol buffers.
   \item Implementation of a novel acceleration method.
-  \item A novel analysis of this acceleration methods using
-    instrumentation implemented in the code.
+  \item A novel analysis of implemented acceleration methods using
+    instrumentation.
   \end{enumerate}
 \end{frame}
 
@@ -620,12 +635,14 @@ Some acceleration schemes that have been developed to mitigate this issue:
     + \frac{1}{k}\mat{F}
     _{g'}\mat{\Phi}_{g'}\right]\;.
   \end{align*}
+  \pause
   Holding the scattering source fixed leads to power iteration
   (fission source iteration),
   \begin{align*}
     \mat{L}_g\mat{\Psi}^{k+1}_g = \mat{M}\sum^{G}_{g' = 0}\left[\mat{S}_{g'  g}\mat{\Phi}^{0}_{g'}
     + \frac{1}{k}\mat{F}_{g'}\mat{\Phi}^{k}_{g'}\right]\;.
   \end{align*}
+  \pause
   In general, to converge both the fission and scattering sources,
     power iteration is paired with source iteration in an inner-outer
     convergence scheme.
@@ -643,9 +660,9 @@ Some acceleration schemes that have been developed to mitigate this issue:
   ratio $k_1/k_0$ approaches unity.
 \end{block}
 
-\onslide<+->{
+\onslide{
 Different acceleration schemes address different issues:
-\begin{itemize}[<+->]
+\begin{itemize}
 \item Power Iteration: Nonlinear diffusion acceleration (NDA).
 \item Source Iteration: Diffusion two-grid method (TG).
 \item Both: A novel combination of NDA and TG.
@@ -720,7 +737,7 @@ Different acceleration schemes address different issues:
           D\nabla\phi_g}{\phi_g}\right]\phi_g \\
         &= -D \nabla \phi_g + \hat{D}_g\phi_g\;.
   \end{align*}
-  %\pause
+  \pause
   Plugging this into our integrated transport equation gives the
 low-order non-linear diffusion acceleration equation (LONDA),
   \begin{block}{}
@@ -794,11 +811,13 @@ two-grid method which rests on two assumptions:
     + \mat{M}\sum^G_{g' = g+1}\mat{S}_{g'  g}\mat{\Phi}^k_{g'}
     + \mat{Q}_g\;.
   \end{align*}
+  \pause
   Step 2: Calculate the isotropic component of the residual,
   \begin{align*}
     \mat{R}^{i + \frac{1}{2}}_{g, 0} = \sum_{g' =
     g+1}^{G}\mat{S}_{g'g}\left(\mat{\Phi}^{i + \frac{1}{2}}_{g'} - \mat{\Phi}^{i}_{g'}\right)
   \end{align*}
+  \pause
   Step 3: Calculate the error.
     \begin{align*}
       \mat{L}_g\mat{\epsilon}^{i+\frac{1}{2}}_g = \mat{M}\sum^G_{g' = 0}\mat{S}_{g' 
@@ -808,17 +827,16 @@ two-grid method which rests on two assumptions:
   }
 
 \frame[c]{\frametitle{Two-grid acceleration}\
-
-  Step 3a: Calculate error using integrated diffusion approximation.
+  Step 3a: Calculate error using integrated one-energy diffusion approximation.
       \begin{equation*}
       \left(-\nabla \cdot \left<D_g\right> \nabla  +
         \Sigma_g\right)\tilde{\varepsilon}_g^{i+\frac{1}{2}} = \sum_{g' =
         0}^G\Sigma_{s,g'g,0}\tilde{\varepsilon}_{g'}^{i+\frac{1}{2}} + \mat{R}^{i+\frac{1}{2}}_{g,0}
     \end{equation*}
-
-    Step 4: Correct the flux
+\pause
+    Step 4: Project the error and correct the flux
     \begin{equation*}
-      \mat{\Psi}_g^{i+1} = \mat{\Psi}_g^{i+ \frac{1}{2}} + \mat{M}\tilde{\varepsilon}_{g}^{i+\frac{1}{2}}
+      \mat{\Phi}_g^{i+1} = \mat{\Phi}_g^{i+ \frac{1}{2}} + \tilde{\varepsilon}_{g}^{i+\frac{1}{2}}\xi_g
     \end{equation*}
 
 This will accelerate our solution only if it removes more error with
@@ -914,6 +932,21 @@ less work than our original method.
   \vfill
 \end{frame}
 
+\begin{frame}
+  \frametitle{Conclusion}
+  \begin{itemize}
+  \item Convergence rates of the neutron transport equation motivate
+    the development of methods that accelerate the solve.
+  \item Describing and quantifying the success of these methods can be
+    difficult.
+  \item This project will create a tool for implementing and analyzing
+    these methods in a controlled environment.
+  \item A proof-of-concept new acceleration method will be implemented
+    to show and assess the usefulness of the tool.
+  \item If successful, this tool could be used as a laboratory for
+    developing new method.
+  \end{itemize}
+\end{frame}
 
 \frame[noframenumbering, plain]{\frametitle{References}
 \tiny{\bibliographystyle{plain}}
